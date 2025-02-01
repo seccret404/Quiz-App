@@ -15,12 +15,6 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
-<<<<<<< HEAD
-    
-
-
-=======
->>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
     /*
     |--------------------------------------------------------------------------
     | Application Environment
