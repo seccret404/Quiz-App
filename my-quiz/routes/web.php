@@ -10,7 +10,7 @@ use App\Http\Controllers\FirebaseConnectionController;
 // });
 
 // Auth
-Route::get('/', [AuthController::class, 'LoginForm']);
+Route::get('/login', [AuthController::class, 'LoginForm']);
 Route::get('/register-form', [AuthController::class, 'RegisterForm']);
 Route::post('/register', [AuthController::class, 'Register']);
 
