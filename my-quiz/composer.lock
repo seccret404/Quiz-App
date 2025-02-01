@@ -4,6 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "4880eb5c878ded1811c4c22817307025",
     "packages": [
         {
@@ -209,6 +210,11 @@
             "time": "2024-12-19T09:35:08+00:00"
         },
         {
+=======
+    "content-hash": "626b9e7ddd47fb7eff9aaa53cce0c9ad",
+    "packages": [
+        {
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "brick/math",
             "version": "0.12.1",
             "source": {
@@ -713,6 +719,7 @@
             "time": "2024-12-27T00:36:43+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "fig/http-message-util",
             "version": "1.1.5",
             "source": {
@@ -832,6 +839,8 @@
             "time": "2025-01-23T05:11:06+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "fruitcake/php-cors",
             "version": "v1.3.0",
             "source": {
@@ -903,6 +912,7 @@
             "time": "2023-10-12T05:21:21+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "google/auth",
             "version": "v1.45.3",
             "source": {
@@ -1336,6 +1346,8 @@
             "time": "2025-01-08T21:00:13+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "graham-campbell/result-type",
             "version": "v1.1.3",
             "source": {
@@ -1398,6 +1410,7 @@
             "time": "2024-07-20T21:45:45+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "grpc/grpc",
             "version": "1.57.0",
             "source": {
@@ -1442,6 +1455,8 @@
             "time": "2023-08-14T23:57:54+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "guzzlehttp/guzzle",
             "version": "7.9.2",
             "source": {
@@ -1853,6 +1868,7 @@
             "time": "2023-12-03T19:50:20+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "kreait/firebase-php",
             "version": "7.16.1",
             "source": {
@@ -2104,6 +2120,8 @@
             "time": "2024-11-22T13:02:38+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "laravel/framework",
             "version": "v11.38.2",
             "source": {
@@ -2504,6 +2522,7 @@
             "time": "2024-09-23T13:32:56+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "lcobucci/jwt",
             "version": "5.5.0",
             "source": {
@@ -2577,6 +2596,8 @@
             "time": "2025-01-26T21:29:45+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "league/commonmark",
             "version": "2.6.1",
             "source": {
@@ -3231,6 +3252,7 @@
             "time": "2024-12-05T17:15:07+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "mtdowling/jmespath.php",
             "version": "2.8.0",
             "source": {
@@ -3297,6 +3319,8 @@
             "time": "2024-09-04T18:46:31+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "nesbot/carbon",
             "version": "3.8.4",
             "source": {
@@ -3771,6 +3795,7 @@
             "time": "2024-07-20T21:41:07+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "psr/cache",
             "version": "3.0.0",
             "source": {
@@ -3820,6 +3845,8 @@
             "time": "2021-02-03T23:26:27+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "psr/clock",
             "version": "1.0.0",
             "source": {
@@ -4536,6 +4563,7 @@
             "time": "2024-04-27T21:32:50+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "rize/uri-template",
             "version": "0.4.0",
             "source": {
@@ -4774,6 +4802,8 @@
             "time": "2024-09-25T14:20:29+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "symfony/clock",
             "version": "v7.2.0",
             "source": {
@@ -7002,6 +7032,7 @@
             "time": "2024-11-08T15:48:14+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "symfony/var-exporter",
             "version": "v7.2.0",
             "source": {
@@ -7078,6 +7109,8 @@
             "time": "2024-10-18T07:58:17+00:00"
         },
         {
+=======
+>>>>>>> a6a8f127245a5e54acc72a6d6f354144bbcc0aed
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.3.0",
             "source": {

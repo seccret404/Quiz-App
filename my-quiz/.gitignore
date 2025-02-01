@@ -21,7 +21,3 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-/storage/firebase/firebase.json
-echo "my-quiz/storage/firebase/firebase.json" >> .gitignore
-git add .gitignore
-git commit -m "Ignore firebase.json"
