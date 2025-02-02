@@ -52,33 +52,32 @@ class AuthController extends Controller
     public function Login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|string|email',
+            'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
         $usersRef = $this->database->getReference('users')->getValue();
 
+        if (!$usersRef) {
+            return redirect()->back()->withErrors(['email' => 'Email tidak ditemukan']);
+        }
+
         $user = null;
-        if ($usersRef) {
-            foreach ($usersRef as $userId => $userData) {
-                if ($userData['email'] === $request->email) {
-                    $user = $userData;
-                    break;
-                }
+        foreach ($usersRef as $userId => $userData) {
+            if (is_array($userData) && isset($userData['email']) && $userData['email'] === $request->email) {
+                $user = $userData;
+                break;
             }
         }
 
         if (!$user) {
-            return redirect()->back()->withErrors(['email' => 'Email not found']);
+            return redirect()->back()->withErrors(['email' => 'Email tidak ditemukan']);
         }
 
         if (!Hash::check($request->password, $user['password'])) {
-            return redirect()->back()->withErrors(['password' => 'Invalid password']);
+            return redirect()->back()->withErrors(['password' => 'Password tidak valid']);
         }
 
-        // // Simpan data user ke session (bisa menggunakan Auth::login() jika pakai Laravel Auth)
-        // Session::put('user', $user);
-
-        return redirect('/students-index')->with('success', 'Login successful');
+        return redirect('/students-index')->with('success', 'Login berhasil');
     }
 }
