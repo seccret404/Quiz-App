@@ -10,7 +10,7 @@
 
 <body class="bg-gray-100 flex items-center justify-center h-screen">
 
-    <div class="bg-white shadow-lg rounded-lg flex w-[997px] h-[609px]">
+    <div class="bg-white shadow-lg rounded-lg flex flex-wrap w-[997px] h-auto">
 
         <div class="w-1/2 w-[399px] flex items-center justify-center rounded-l-lg">
             <img src="assets/images/image_login.png" alt="Login Image" class="w-full h-full object-cover rounded-l-lg">
@@ -29,13 +29,15 @@
 
             <form action="/login" method="POST" class="mt-6">
                 @csrf
-                @if ($errors->any())
+                @if ($errors->has('email'))
                     <div class="mb-4 p-3 bg-red-100 text-red-600 rounded">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                        <span>{{ $errors->first('email') }}</span>
+                    </div>
+                @endif
+
+                @if ($errors->has('password'))
+                    <div class="mb-4 p-3 bg-red-100 text-red-600 rounded">
+                        <span>{{ $errors->first('password') }}</span>
                     </div>
                 @endif
 
@@ -52,7 +54,6 @@
                     </button>
                 </div>
 
-
                 <div class="flex justify-between items-center mb-4 text-sm">
                     <label class="flex items-center">
                         <input type="checkbox" name="remember" class="mr-2">
@@ -62,17 +63,12 @@
 
                 <div class="text-center">
                     <button type="submit"
-                        class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-[100px] font-bold">
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-[50px] font-bold">
                         Login
                     </button>
                 </div>
             </form>
 
-
-
-
-
-            <!-- Link Register -->
             <div class="text-center mt-9 mb-9 text-sm">
                 <div>
                     <a href="#" class="text-blue-500 hover:underline">Forgot Your Password?</a>

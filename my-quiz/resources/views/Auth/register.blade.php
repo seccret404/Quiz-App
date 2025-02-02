@@ -54,7 +54,7 @@
 
                 <div class="text-center">
                     <button type="submit"
-                        class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-[100px] font-bold">
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-[50px] font-bold">
                         Register
                     </button>
                 </div>
@@ -66,7 +66,7 @@
 
             <div class="text-center mt-2 text-sm">
                 <span>Already have an account? </span>
-                <a href="/login-form" class="text-blue-500 hover:underline">Login here!</a>
+                <a href="/" class="text-blue-500 hover:underline">Login here!</a>
             </div>
         </div>
     </div>
