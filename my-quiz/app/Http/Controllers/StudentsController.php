@@ -8,6 +8,6 @@ class StudentsController extends Controller
 {
     public function students_index()
     {
-        return view('Students.Home.index');
+        return view('Layout.Admin.header');
     }
 }

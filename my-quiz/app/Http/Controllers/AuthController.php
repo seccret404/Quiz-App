@@ -78,6 +78,6 @@ class AuthController extends Controller
             return redirect()->back()->withErrors(['password' => 'Password tidak valid']);
         }
 
-        return redirect('/students-index')->with('success', 'Login berhasil');
+        return redirect('/admin')->with('success', 'Login berhasil');
     }
 }

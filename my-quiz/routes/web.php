@@ -21,7 +21,7 @@ Route::get('/login', [AuthController::class, 'LoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'Login']);
 
 // Students
-Route::get('/students-index', [StudentsController::class, 'students_index'])->name('students_index');
+Route::get('/admin', [StudentsController::class, 'students_index'])->name('students_index');
 
 
 
