@@ -44,10 +44,9 @@ use App\Http\Controllers\GenerateQuizController;
     Route::get('/dashboard/admin', [TeacherController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/quiz', [GenerateQuizController::class, 'index'])->name('generate');
 
-    
+
     Route::get('/dashboard/fintech', [DashboardController::class, 'fintech'])->name('quiz');
     Route::get('/dashboard/admin/leaderboard', [LeaderboardController::class, 'leaderboard'])->name('leaderboard');
     Route::get('/dashboard/orders', [OrderController::class, 'index'])->name('logout');
     Route::get('/dashboard/invoices', [InvoiceController::class, 'index'])->name('invoices');
-
 
