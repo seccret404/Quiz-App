@@ -60,6 +60,7 @@
             <!-- Left: Title -->
             <div class="mb-4 sm:mb-0">
                 <h1 class="text-2xl md:text-3xl text-gray-800 dark:text-gray-100 font-bold">Generate Question</h1>
+
             </div>
 
             <!-- Right: Actions -->
@@ -70,8 +71,11 @@
             </div>
         </div>
 
+        {{-- loader componen  --}}
+        <x-loader/>
+
         <!-- Cards Form Generate Soal -->
-            <form action="{{route('generate.quiz')}}" method="POST" enctype="multipart/form-data" class="grid grid-cols-2 gap-4">
+            <form id="generateForm" action="{{route('generate.quiz')}}" method="POST" enctype="multipart/form-data" class="grid grid-cols-2 gap-4">
                 @csrf
 
                 <div class="border border-dashed border-[2px] rounded-[5px] border-[#4E73DF]">
@@ -164,6 +168,19 @@
     @else
     <p class="text-center text-[18px] font-bold mt-4">No questions found.</p>
     @endif
+
+    {{-- script untuk loader  --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateForm = document.getElementById('generateForm');
+            const loader = document.getElementById('loader');
+
+            generateForm.addEventListener('submit', function() {
+                // Tampilkan loader saat form di-submit
+                loader.classList.remove('hidden');
+            });
+        });
+    </script>
 
     {{-- script untuk control file pdf  --}}
     <script>
