@@ -7,15 +7,13 @@
     "require": {
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.2",
-<<<<<<< HEAD
         "kreait/laravel-firebase": "5.10",
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
         "laravel/framework": "^11.0",
         "laravel/jetstream": "^5.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
-        "livewire/livewire": "^3.4"
+        "livewire/livewire": "^3.4",
+        "smalot/pdfparser": "^2.11"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

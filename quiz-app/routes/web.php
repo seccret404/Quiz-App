@@ -13,6 +13,7 @@ use App\Http\Controllers\DataFeedController;
 use App\Http\Controllers\FirebaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\PdfQuestionController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\GenerateQuizController;
 
@@ -50,3 +51,4 @@ use App\Http\Controllers\GenerateQuizController;
     Route::get('/dashboard/orders', [OrderController::class, 'index'])->name('logout');
     Route::get('/dashboard/invoices', [InvoiceController::class, 'index'])->name('invoices');
 
+    Route::post('/generate-questions', [PdfQuestionController::class, 'processPDF'])->name('generate.quiz');

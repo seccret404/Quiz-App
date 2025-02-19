@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "451940989eab37c304085d65c2cf817c",
-=======
-    "content-hash": "2c9b84bff1051fa97ccc64578fd179bd",
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
+    "content-hash": "d535d7696302e2cc23d2c3e972ddb4d9",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -65,7 +61,6 @@
             "time": "2024-10-01T13:55:55+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "beste/clock",
             "version": "3.0.0",
             "source": {
@@ -268,8 +263,6 @@
             "time": "2024-12-19T09:35:08+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "brick/math",
             "version": "0.12.1",
             "source": {
@@ -824,7 +817,6 @@
             "time": "2024-12-27T00:36:43+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "fig/http-message-util",
             "version": "1.1.5",
             "source": {
@@ -944,8 +936,6 @@
             "time": "2025-01-23T05:11:06+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "fruitcake/php-cors",
             "version": "v1.3.0",
             "source": {
@@ -1017,7 +1007,6 @@
             "time": "2023-10-12T05:21:21+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "google/auth",
             "version": "v1.46.0",
             "source": {
@@ -1451,8 +1440,6 @@
             "time": "2025-01-08T21:00:13+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "graham-campbell/result-type",
             "version": "v1.1.3",
             "source": {
@@ -1515,7 +1502,6 @@
             "time": "2024-07-20T21:45:45+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "grpc/grpc",
             "version": "1.57.0",
             "source": {
@@ -1560,8 +1546,6 @@
             "time": "2023-08-14T23:57:54+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "guzzlehttp/guzzle",
             "version": "7.9.2",
             "source": {
@@ -1973,7 +1957,6 @@
             "time": "2023-12-03T19:50:20+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "kreait/firebase-php",
             "version": "7.16.1",
             "source": {
@@ -2225,8 +2208,6 @@
             "time": "2024-11-22T13:02:38+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "laravel/fortify",
             "version": "v1.25.4",
             "source": {
@@ -2824,7 +2805,6 @@
             "time": "2025-01-27T14:24:01+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "lcobucci/jwt",
             "version": "5.5.0",
             "source": {
@@ -2898,8 +2878,6 @@
             "time": "2025-01-26T21:29:45+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "league/commonmark",
             "version": "2.6.1",
             "source": {
@@ -3695,7 +3673,6 @@
             "time": "2024-12-05T17:15:07+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "mtdowling/jmespath.php",
             "version": "2.8.0",
             "source": {
@@ -3762,8 +3739,6 @@
             "time": "2024-09-04T18:46:31+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "nesbot/carbon",
             "version": "3.8.4",
             "source": {
@@ -5122,7 +5097,6 @@
             "time": "2024-04-27T21:32:50+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "rize/uri-template",
             "version": "0.4.0",
             "source": {
@@ -5185,6 +5159,57 @@
                 }
             ],
             "time": "2024-11-27T12:13:42+00:00"
+        },
+        {
+            "name": "smalot/pdfparser",
+            "version": "v2.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smalot/pdfparser.git",
+                "reference": "ac8e6678b0940e4b2ccd5caadd3fb18e68093be6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smalot/pdfparser/zipball/ac8e6678b0940e4b2ccd5caadd3fb18e68093be6",
+                "reference": "ac8e6678b0940e4b2ccd5caadd3fb18e68093be6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "ext-zlib": "*",
+                "php": ">=7.1",
+                "symfony/polyfill-mbstring": "^1.18"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Smalot\\PdfParser\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastien MALOT",
+                    "email": "sebastien@malot.fr"
+                }
+            ],
+            "description": "Pdf parser library. Can read and extract information from pdf file.",
+            "homepage": "https://www.pdfparser.org",
+            "keywords": [
+                "extract",
+                "parse",
+                "parser",
+                "pdf",
+                "text"
+            ],
+            "support": {
+                "issues": "https://github.com/smalot/pdfparser/issues",
+                "source": "https://github.com/smalot/pdfparser/tree/v2.11.0"
+            },
+            "time": "2024-08-16T06:48:03+00:00"
         },
         {
             "name": "symfony/cache",
@@ -5361,8 +5386,6 @@
             "time": "2024-09-25T14:20:29+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "symfony/clock",
             "version": "v7.2.0",
             "source": {
@@ -7591,7 +7614,6 @@
             "time": "2025-01-17T11:39:41+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "symfony/var-exporter",
             "version": "v7.2.0",
             "source": {
@@ -7668,8 +7690,6 @@
             "time": "2024-10-18T07:58:17+00:00"
         },
         {
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.3.0",
             "source": {
@@ -10457,20 +10477,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-<<<<<<< HEAD
     "stability-flags": [],
-=======
-    "stability-flags": {},
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-<<<<<<< HEAD
     "platform-dev": [],
-=======
-    "platform-dev": {},
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
     "plugin-api-version": "2.6.0"
 }

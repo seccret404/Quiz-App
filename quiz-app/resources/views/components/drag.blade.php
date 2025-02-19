@@ -63,7 +63,7 @@
         <p class="upload-text">Drag and Drop file here</p>
         <p>Or</p>
         <label for="file-input" class="upload-btn">Browse File</label>
-        <input type="file" id="file-input" class="file-input" accept="application/pdf">
+        <input type="file" name="pdf" id="file-input" class="file-input" accept="application/pdf">
         <p class="format-text">Formats: pdf</p>
     </div>
 

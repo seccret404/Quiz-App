@@ -41,19 +41,12 @@
                     <span class="hidden lg:block lg:sidebar-expanded:hidden 2xl:hidden text-center w-6" aria-hidden="true">•••</span>
                     <span class="lg:hidden lg:sidebar-expanded:block 2xl:block">Pages</span>
                 </h3>
-                {{-- Dashboard  --}}
+                {{-- Dashboard  --}}    
                 <ul class="mt-3">
-<<<<<<< HEAD
                     <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(request()->routeIs('dashboard')) from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04] @endif">
                         <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!request()->routeIs('dashboard')) hover:text-gray-900 dark:hover:text-white @endif" href="{{ route('dashboard') }}">
                             <div class="flex items-center">
                                 <svg class="shrink-0 fill-current @if(request()->routeIs('dashboard')) text-violet-500 @else text-gray-400 dark:text-gray-500 @endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-=======
-                    <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(in_array(Request::segment(1), ['dashboard'])){{ 'from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04]' }}@endif">
-                        <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!in_array(Request::segment(1), ['dashboard'])){{ 'hover:text-gray-900 dark:hover:text-white' }}@endif" href="{{ route('dashboard') }}">
-                            <div class="flex items-center">
-                                <svg class="shrink-0 fill-current @if(in_array(Request::segment(1), ['dashboard'])){{ 'text-violet-500' }}@else{{ 'text-gray-400 dark:text-gray-500' }}@endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
                                     <path d="M5.936.278A7.983 7.983 0 0 1 8 0a8 8 0 1 1-8 8c0-.722.104-1.413.278-2.064a1 1 0 1 1 1.932.516A5.99 5.99 0 0 0 2 8a6 6 0 1 0 6-6c-.53 0-1.045.076-1.548.21A1 1 0 1 1 5.936.278Z" />
                                     <path d="M6.068 7.482A2.003 2.003 0 0 0 8 10a2 2 0 1 0-.518-3.932L3.707 2.293a1 1 0 0 0-1.414 1.414l3.775 3.775Z" />
                                 </svg>
@@ -62,17 +55,10 @@
                         </a>
                     </li>
 
-<<<<<<< HEAD
                     <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(request()->routeIs('generate')) from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04] @endif">
                         <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!request()->routeIs('generate')) hover:text-gray-900 dark:hover:text-white @endif" href="{{ route('generate') }}">
                             <div class="flex items-center">
                                 <svg class="shrink-0 fill-current @if(request()->routeIs('generate')) text-violet-500 @else text-gray-400 dark:text-gray-500 @endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-=======
-                    <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(in_array(Request::segment(1), ['generate'])){{ 'from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04]' }}@endif">
-                        <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!in_array(Request::segment(1), ['generate'])){{ 'hover:text-gray-900 dark:hover:text-white' }}@endif" href="{{ route('generate') }}">
-                            <div class="flex items-center">
-                                <svg class="shrink-0 fill-current @if(in_array(Request::segment(1), ['generate'])){{ 'text-violet-500' }}@else{{ 'text-gray-400 dark:text-gray-500' }}@endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
                                     <path d="M5.936.278A7.983 7.983 0 0 1 8 0a8 8 0 1 1-8 8c0-.722.104-1.413.278-2.064a1 1 0 1 1 1.932.516A5.99 5.99 0 0 0 2 8a6 6 0 1 0 6-6c-.53 0-1.045.076-1.548.21A1 1 0 1 1 5.936.278Z" />
                                     <path d="M6.068 7.482A2.003 2.003 0 0 0 8 10a2 2 0 1 0-.518-3.932L3.707 2.293a1 1 0 0 0-1.414 1.414l3.775 3.775Z" />
                                 </svg>
@@ -81,17 +67,10 @@
                         </a>
                     </li>
 
-<<<<<<< HEAD
                     <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(request()->routeIs('quiz')) from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04] @endif">
                         <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!request()->routeIs('quiz')) hover:text-gray-900 dark:hover:text-white @endif" href="{{ route('quiz') }}">
                             <div class="flex items-center">
                                 <svg class="shrink-0 fill-current @if(request()->routeIs('quiz')) text-violet-500 @else text-gray-400 dark:text-gray-500 @endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-=======
-                    <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(in_array(Request::segment(1), ['quiz'])){{ 'from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04]' }}@endif">
-                        <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!in_array(Request::segment(1), ['quiz'])){{ 'hover:text-gray-900 dark:hover:text-white' }}@endif" href="{{ route('quiz') }}">
-                            <div class="flex items-center">
-                                <svg class="shrink-0 fill-current @if(in_array(Request::segment(1), ['quiz'])){{ 'text-violet-500' }}@else{{ 'text-gray-400 dark:text-gray-500' }}@endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
                                     <path d="M5.936.278A7.983 7.983 0 0 1 8 0a8 8 0 1 1-8 8c0-.722.104-1.413.278-2.064a1 1 0 1 1 1.932.516A5.99 5.99 0 0 0 2 8a6 6 0 1 0 6-6c-.53 0-1.045.076-1.548.21A1 1 0 1 1 5.936.278Z" />
                                     <path d="M6.068 7.482A2.003 2.003 0 0 0 8 10a2 2 0 1 0-.518-3.932L3.707 2.293a1 1 0 0 0-1.414 1.414l3.775 3.775Z" />
                                 </svg>
@@ -100,17 +79,10 @@
                         </a>
                     </li>
 
-<<<<<<< HEAD
                     <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(request()->routeIs('leaderboard')) from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04] @endif">
                         <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!request()->routeIs('leaderboard')) hover:text-gray-900 dark:hover:text-white @endif" href="{{ route('leaderboard') }}">
                             <div class="flex items-center">
                                 <svg class="shrink-0 fill-current @if(request()->routeIs('leaderboard')) text-violet-500 @else text-gray-400 dark:text-gray-500 @endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-=======
-                    <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(in_array(Request::segment(1), ['leaderboard'])){{ 'from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04]' }}@endif">
-                        <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!in_array(Request::segment(1), ['leaderboard'])){{ 'hover:text-gray-900 dark:hover:text-white' }}@endif" href="{{ route('leaderboard') }}">
-                            <div class="flex items-center">
-                                <svg class="shrink-0 fill-current @if(in_array(Request::segment(1), ['leaderboard'])){{ 'text-violet-500' }}@else{{ 'text-gray-400 dark:text-gray-500' }}@endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
                                     <path d="M5.936.278A7.983 7.983 0 0 1 8 0a8 8 0 1 1-8 8c0-.722.104-1.413.278-2.064a1 1 0 1 1 1.932.516A5.99 5.99 0 0 0 2 8a6 6 0 1 0 6-6c-.53 0-1.045.076-1.548.21A1 1 0 1 1 5.936.278Z" />
                                     <path d="M6.068 7.482A2.003 2.003 0 0 0 8 10a2 2 0 1 0-.518-3.932L3.707 2.293a1 1 0 0 0-1.414 1.414l3.775 3.775Z" />
                                 </svg>
@@ -119,17 +91,10 @@
                         </a>
                     </li>
 
-<<<<<<< HEAD
                     <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(request()->routeIs('logout')) from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04] @endif">
                         <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!request()->routeIs('logout')) hover:text-gray-900 dark:hover:text-white @endif" href="{{ route('logout') }}">
                             <div class="flex items-center">
                                 <svg class="shrink-0 fill-current @if(request()->routeIs('logout')) text-violet-500 @else text-gray-400 dark:text-gray-500 @endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-=======
-                    <li class="pl-4 pr-3 py-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r @if(in_array(Request::segment(1), ['logout'])){{ 'from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04]' }}@endif">
-                        <a class="block text-gray-800 dark:text-gray-100 truncate transition @if(!in_array(Request::segment(1), ['logout'])){{ 'hover:text-gray-900 dark:hover:text-white' }}@endif" href="{{ route('dashboard') }}">
-                            <div class="flex items-center">
-                                <svg class="shrink-0 fill-current @if(in_array(Request::segment(1), ['logout'])){{ 'text-violet-500' }}@else{{ 'text-gray-400 dark:text-gray-500' }}@endif" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
                                     <path d="M10.09 15.59L12.67 18.17L19.84 11L12.67 3.83L10.09 6.41L13.67 10H4V14H13.67L10.09 15.59Z"/>
                                 </svg>
                                 <span class="text-sm font-medium ml-4 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">Logout</span>
@@ -137,10 +102,6 @@
                         </a>
                     </li>
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 53a495b389bf3b650987e4eae7e9b7607563e8ba
                 </ul>
             </div>
 
