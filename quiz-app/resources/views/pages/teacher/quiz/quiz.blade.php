@@ -60,12 +60,10 @@
             <!-- Left: Title -->
             <div class="mb-4 sm:mb-0">
                 <h1 class="text-2xl md:text-3xl text-gray-800 dark:text-gray-100 font-bold">Generate Question</h1>
-
             </div>
 
             <!-- Right: Actions -->
             <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-
                 <!-- Datepicker built with flatpickr -->
                 <x-datepicker />
             </div>
@@ -109,8 +107,8 @@
     </div>
     <hr>
 
-    {{-- perulangan soal  --}}
-    @if(isset($questions) && is_array($questions))
+    <form action="">
+        @if(isset($questions) && is_array($questions))
         @foreach($questions as $qIndex => $question)
         <div class="bg-white rounded p-4 m-6">
 
@@ -125,21 +123,16 @@
                 <div class="grid grid-cols-2 gap-2">
                     @if(isset($question['options']) && is_array($question['options']))
                         @foreach($question['options'] as $index => $option)
-                        <div class="flex border rounded justify-between bg-[#4E72DF78]">
+                        <div class="flex border rounded bg-[#4E72DF78]">
                             <!-- Label A, B, C, D -->
                             <div class="bg-[#4E73DF] w-[30px] pt-1 pb-1 flex items-center justify-center text-white rounded">
                                 {{ chr(65 + $index) }}
                             </div>
                             <!-- Isi opsi -->
-                            <div class="text-black pt-1 pl-3 pr-3 pb-1 flex items-center justify-center">
+                            <div class="text-black text-start pt-1 pl-3 pr-3 pb-1 flex items-center justify-center">
                                 {{ $option }}
                             </div>
                             <!-- Checkbox -->
-                            <div class="pt-1 pb-1 flex items-center justify-center mr-2">
-                                <input type="checkbox" class="rounded-[25px]"
-                                    name="answer[{{ $qIndex }}]"
-                                    value="{{ $option }}">
-                            </div>
                         </div>
                         @endforeach
                     @endif
@@ -168,6 +161,7 @@
     @else
     <p class="text-center text-[18px] font-bold mt-4">No questions found.</p>
     @endif
+    </form>
 
     {{-- script untuk loader  --}}
     <script>
