@@ -23,7 +23,7 @@ class FirebaseController extends Controller
             $this->database->getReference('users')->set([]);
 
 
-            $fields = [
+            $userFields = [
                 'id'          => '',
                 'name'        => '',
                 'email'       => '',
@@ -33,7 +33,36 @@ class FirebaseController extends Controller
                 'created_at'  => now()->toDateTimeString(),
             ];
 
-            $this->database->getReference('users')->set($fields);
+            $this->database->getReference('users')->set($userFields);
+
+            $quizFields = [
+                'id'             => '',
+                'name_quiz'      => '',
+                'type_quiz'      => '',
+                'code_quiz'      => '',
+                'total_question' => 0,
+                'start_time'     => '',
+                'end_time'       => '',
+                'created_at'     => now()->toDateTimeString(),
+            ];
+    
+            $this->database->getReference('quizs')->push($quizFields);
+
+            $questionFields = [
+                'id'              => '',
+                'id_quiz'         => '',
+                'code_quiz'       => '',
+                'question'        => '',
+                'options'         => [],
+                'level_questions' => '',
+                'correct_answer'  => '',
+                'feedback'        => '',
+                'score_question'  => 0,
+                'timer'           => 0,
+                'created_at'      => now()->toDateTimeString(),
+            ];
+    
+            $this->database->getReference('questions')->push($questionFields);
 
             return response()->json([
                 'message' => 'Firebase connected!!',

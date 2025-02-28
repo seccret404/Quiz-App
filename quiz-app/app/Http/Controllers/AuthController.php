@@ -56,6 +56,7 @@ class AuthController extends Controller
         ]);
 
         $usersRef = $this->database->getReference('users')->getValue();
+        // dd($usersRef);
 
         if (!$usersRef) {
             return redirect()->back()->withErrors(['email' => 'Email tidak ditemukan']);
@@ -65,6 +66,7 @@ class AuthController extends Controller
         foreach ($usersRef as $userId => $userData) {
             if (is_array($userData) && isset($userData['email']) && $userData['email'] === $request->email) {
                 $user = $userData;
+                $user['id'] = $userId;
                 break;
             }
         }
@@ -73,9 +75,15 @@ class AuthController extends Controller
             return redirect()->back()->withErrors(['email' => 'Email tidak ditemukan']);
         }
 
+        if (!isset($user['password']) || empty($user['password'])) {
+            return redirect()->back()->withErrors(['password' => 'Password tidak ditemukan di database']);
+        }
+
         if (!Hash::check($request->password, $user['password'])) {
             return redirect()->back()->withErrors(['password' => 'Password tidak valid']);
         }
+
+        session(['user' => $user]);
 
         return redirect('/dashboard/admin')->with('success', 'Login berhasil');
     }

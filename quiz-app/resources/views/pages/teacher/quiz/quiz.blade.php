@@ -52,6 +52,21 @@
         }
     </style>
 
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
 
         <!-- Dashboard actions -->
@@ -70,98 +85,171 @@
         </div>
 
         {{-- loader componen  --}}
-        <x-loader/>
+        <x-loader />
 
         <!-- Cards Form Generate Soal -->
-            <form id="generateForm" action="{{route('generate.quiz')}}" method="POST" enctype="multipart/form-data" class="grid grid-cols-2 gap-4">
-                @csrf
+        <form id="generateForm" action="{{ route('generate.quiz') }}" method="POST" enctype="multipart/form-data"
+            class="grid grid-cols-2 gap-4">
+            @csrf
 
-                <div class="border border-dashed border-[2px] rounded-[5px] border-[#4E73DF]">
-                    <div class="upload-container" id="drop-zone">
-                        <div class="upload-icon">📄</div>
-                        <p class="upload-text">Drag and Drop file here</p>
-                        <p>Or</p>
-                        <label for="file-input" class="upload-btn">Browse File</label>
-                        <input type="file" name="pdf" id="file-input" class="file-input" accept="application/pdf">
-                        <p class="format-text">Formats: pdf</p>
-                        <p id="file-name-display" class="text-gray-700 mt-2"></p>
-                    </div>
+            <div class="border border-dashed border-[2px] rounded-[5px] border-[#4E73DF]">
+                <div class="upload-container" id="drop-zone">
+                    <div class="upload-icon">📄</div>
+                    <p class="upload-text">Drag and Drop file here</p>
+                    <p>Or</p>
+                    <label for="file-input" class="upload-btn">Browse File</label>
+                    <input type="file" name="pdf" id="file-input" class="file-input" accept="application/pdf">
+                    <p class="format-text">Formats: pdf</p>
+                    <p id="file-name-display" class="text-gray-700 mt-2"></p>
                 </div>
+            </div>
 
-                <div class="flex flex-col justify-between p-[40px]">
-                    <div class="">
-                            <div class="text-[16px] font-bold">Total Questions</div>
-                        <input type="number" name="total_questions" class="w-full h-[53px] rounded">
-                    </div>
-                    <div class="">
-                        <div class="text-[16px] font-bold">Questions Type</div>
+            <div class="flex flex-col justify-between p-[40px]">
+                <div class="">
+                    <div class="text-[16px] font-bold">Total Questions</div>
+                    <input type="number" name="total_questions" class="w-full h-[53px] rounded">
+                </div>
+                <div class="">
+                    <div class="text-[16px] font-bold">Questions Type</div>
                     <select name="question_type" id="" class="w-full h-[53px] rounded">
-                        <option   selected>Select</option>
+                        <option selected>Select</option>
                         <option value="Multiple Choice">Multiple Choice</option>
                         <option value="Essay">Essay</option>
                     </select>
-                    </div>
-                    <button type="submit" class="p-[12px] bg-[#4E73DF] text-white rounded-[5px] mt-4">Generate Questions</button>
                 </div>
-            </form>
+                <button type="submit" class="p-[12px] bg-[#4E73DF] text-white rounded-[5px] mt-4">Generate
+                    Questions</button>
+            </div>
+        </form>
     </div>
     <hr>
 
-    <form action="">
-        @if(isset($questions) && is_array($questions))
-        @foreach($questions as $qIndex => $question)
-        <div class="bg-white rounded p-4 m-6">
+    <form action="{{ route('save.quiz') }}" method="POST" id="quizForm" enctype="multipart/form-data">
+        @csrf
+        {{-- <input type="hidden" name="id_user" value="{{ auth()->user()->id }}"> --}}
+        <input type="hidden" name="type_quiz" value="{{ session('question_type') }}">
 
-            <div class="text-black font-bold">Question {{ $qIndex+1 }}:</div>
-            <div class="text-black">
-                {{ $question['question'] ?? 'No question text' }}
-            </div>
+        @if (isset($questions) && is_array($questions))
+            @foreach ($questions as $qIndex => $question)
+                <div class="bg-white rounded p-4 m-6 shadow-md">
 
-            {{-- menampilkan jawaban diisni --}}
-            <div class="text-black font-bold mt-2">Options</div>
-            <div class="grid grid-cols-2">
-                <div class="grid grid-cols-2 gap-2">
-                    @if(isset($question['options']) && is_array($question['options']))
-                        @foreach($question['options'] as $index => $option)
-                        <div class="flex border rounded bg-[#4E72DF78]">
-                            <!-- Label A, B, C, D -->
-                            <div class="bg-[#4E73DF] w-[30px] pt-1 pb-1 flex items-center justify-center text-white rounded">
-                                {{ chr(65 + $index) }}
-                            </div>
-                            <!-- Isi opsi -->
-                            <div class="text-black text-start pt-1 pl-3 pr-3 pb-1 flex items-center justify-center">
-                                {{ $option }}
-                            </div>
-                            <!-- Checkbox -->
+                    <div class="text-black font-bold">Question {{ $qIndex + 1 }}:</div>
+                    <textarea name="questions[{{ $qIndex }}][question]" class="w-full p-2 border rounded">{{ $question['question'] ?? 'No question text' }}</textarea>
+
+                    <div class="text-black font-bold mt-2">Options</div>
+                    <div class="grid grid-cols-2 gap-4">
+                        @if (isset($question['options']) && is_array($question['options']))
+                            @foreach ($question['options'] as $index => $option)
+                                <div class="flex items-center border rounded bg-[#4E72DF78] p-2">
+                                    <div
+                                        class="bg-[#4E73DF] w-[30px] h-[30px] flex items-center justify-center text-white rounded mr-2">
+                                        {{ chr(65 + $index) }}
+                                    </div>
+                                    <input type="text"
+                                        name="questions[{{ $qIndex }}][options][{{ $index }}]"
+                                        value="{{ $option }}" class="w-full p-1 border rounded">
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label class="font-bold">Time Limit</label>
+                            <input type="number" class="w-full p-2 border rounded"
+                                name="questions[{{ $qIndex }}][time_limit]" value="0">
                         </div>
-                        @endforeach
-                    @endif
-                </div>
-
-                <!-- Bagian Time Limit & Set Point -->
-                <div class="grid grid-cols-2 gap-2 pl-4 pr-4">
-                    <div class="">
-                        <div class="">Time Limit</div>
-                        <input type="time" class="w-full" name="time_limit[{{ $qIndex }}]">
+                        <div>
+                            <label class="font-bold">Set Point</label>
+                            <input type="number" class="w-full p-2 border rounded"
+                                name="questions[{{ $qIndex }}][point]" value="0">
+                        </div>
+                        <div>
+                            <label class="font-bold">Quiz Level</label>
+                            <select name="questions[{{ $qIndex }}][level]" class="w-full p-2 border rounded">
+                                <option value="easy"
+                                    {{ isset($question['level']) && $question['level'] == 'easy' ? 'selected' : '' }}>
+                                    Easy</option>
+                                <option value="medium"
+                                    {{ isset($question['level']) && $question['level'] == 'medium' ? 'selected' : '' }}>
+                                    Medium</option>
+                                <option value="high"
+                                    {{ isset($question['level']) && $question['level'] == 'high' ? 'selected' : '' }}>
+                                    High</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="">
-                        <div class="">Set Point</div>
-                        <input type="number" class="w-full" name="point[{{ $qIndex }}]">
+
+                    <div class="mt-4">
+                        <label class="text-black font-bold">Correct Answer:</label>
+                        <input type="text" name="questions[{{ $qIndex }}][answer][{{ $index }}]"
+                            value="{{ $option }}" class="w-full p-1 border rounded">
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="text-black font-bold">Feedback:</label>
+                        <textarea name="questions[{{ $qIndex }}][feedback]" class="w-full p-2 border rounded">{{ $question['feedback'] ?? '' }}</textarea>
+                    </div>
+
+                    <div class="flex justify-end items-center mt-2">
+                        <label for="select-{{ $qIndex }}" class="mr-2">Select Question</label>
+                        <input id="select-{{ $qIndex }}" type="checkbox"
+                            name="questions[{{ $qIndex }}][select]" value="1">
                     </div>
                 </div>
-            </div>
+            @endforeach
+        @else
+            <p class="text-center text-[18px] font-bold mt-4">No questions found.</p>
+        @endif
 
-            <!-- Select (opsional) -->
-            <div class="flex justify-end items-center mt-2">
-                <label for="select-{{ $qIndex }}">Select</label> &nbsp;
-                <input id="select-{{ $qIndex }}" type="checkbox" name="select_question[{{ $qIndex }}]">
+        <!-- Tombol Generate Quiz -->
+        <div class="text-right">
+            <button type="button" id="openModal"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all">
+                Generate Quiz
+            </button>
+        </div>
+
+        <!-- Modal Pop-up untuk Input Quiz -->
+        <div id="quizModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
+            <div class="bg-white p-6 rounded-lg w-96">
+                <h2 class="text-xl font-semibold mb-4">Quiz Details</h2>
+
+                <label>Quiz Name:</label>
+                <input type="text" name="nama_quiz" required class="w-full p-2 border rounded mb-2">
+
+                <label>Quiz Code:</label>
+                <input type="text" name="code_quiz" required class="w-full p-2 border rounded mb-2">
+
+                <label>Start Time:</label>
+                <input type="datetime-local" name="start_time" required class="w-full p-2 border rounded mb-2">
+
+                <label>End Time:</label>
+                <input type="datetime-local" name="end_time" required class="w-full p-2 border rounded mb-2">
+
+                <div class="text-right mt-4">
+                    <button type="submit"
+                        class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all">
+                        Save Quiz
+                    </button>
+                    <button type="button" id="closeModal"
+                        class="px-6 py-3 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-all">
+                        Cancel
+                    </button>
+                </div>
             </div>
         </div>
-        @endforeach
-    @else
-    <p class="text-center text-[18px] font-bold mt-4">No questions found.</p>
-    @endif
+
     </form>
+    <script>
+        document.getElementById('openModal').addEventListener('click', function() {
+            document.getElementById('quizModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('quizModal').classList.add('hidden');
+        });
+    </script>
 
     {{-- script untuk loader  --}}
     <script>
