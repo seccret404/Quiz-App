@@ -130,77 +130,72 @@
         <input type="hidden" name="type_quiz" value="{{ session('question_type') }}">
 
         @if (isset($questions) && is_array($questions))
-            @foreach ($questions as $qIndex => $question)
-                <div class="bg-white rounded p-4 m-6 shadow-md">
+        @foreach ($questions as $qIndex => $question)
+            <div class="bg-white rounded p-4 m-6 shadow-md">
+                <div class="text-black font-bold">Question {{ $qIndex + 1 }}:</div>
+                <textarea name="questions[{{ $qIndex }}][question]" class="w-full p-2 border rounded">
+                    {{ $question['question'] ?? 'No question text' }}
+                </textarea>
 
-                    <div class="text-black font-bold">Question {{ $qIndex + 1 }}:</div>
-                    <textarea name="questions[{{ $qIndex }}][question]" class="w-full p-2 border rounded">{{ $question['question'] ?? 'No question text' }}</textarea>
-
-                    <div class="text-black font-bold mt-2">Options</div>
-                    <div class="grid grid-cols-2 gap-4">
-                        @if (isset($question['options']) && is_array($question['options']))
-                            @foreach ($question['options'] as $index => $option)
-                                <div class="flex items-center border rounded bg-[#4E72DF78] p-2">
-                                    <div
-                                        class="bg-[#4E73DF] w-[30px] h-[30px] flex items-center justify-center text-white rounded mr-2">
-                                        {{ chr(65 + $index) }}
-                                    </div>
-                                    <input type="text"
-                                        name="questions[{{ $qIndex }}][options][{{ $index }}]"
-                                        value="{{ $option }}" class="w-full p-1 border rounded">
+                <div class="text-black font-bold mt-2">Options</div>
+                <div class="grid grid-cols-2 gap-4">
+                    @if (isset($question['options']) && is_array($question['options']))
+                        @foreach ($question['options'] as $key => $option)
+                            <div class="flex items-center border rounded bg-[#4E72DF78] p-2">
+                                <div class="bg-[#4E73DF] w-[30px] h-[30px] flex items-center justify-center text-white rounded mr-2">
+                                    {{ $key }}
                                 </div>
-                            @endforeach
-                        @endif
-                    </div>
+                                <input type="text" name="questions[{{ $qIndex }}][options][{{ $key }}]"
+                                       value="{{ $option ?? '' }}" class="w-full p-1 border rounded">
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
 
-                    <div class="grid grid-cols-3 gap-4 mt-4">
-                        <div>
-                            <label class="font-bold">Time Limit</label>
-                            <input type="number" class="w-full p-2 border rounded"
-                                name="questions[{{ $qIndex }}][time_limit]" value="0">
-                        </div>
-                        <div>
-                            <label class="font-bold">Set Point</label>
-                            <input type="number" class="w-full p-2 border rounded"
-                                name="questions[{{ $qIndex }}][point]" value="0">
-                        </div>
-                        <div>
-                            <label class="font-bold">Quiz Level</label>
-                            <select name="questions[{{ $qIndex }}][level]" class="w-full p-2 border rounded">
-                                <option value="easy"
-                                    {{ isset($question['level']) && $question['level'] == 'easy' ? 'selected' : '' }}>
-                                    Easy</option>
-                                <option value="medium"
-                                    {{ isset($question['level']) && $question['level'] == 'medium' ? 'selected' : '' }}>
-                                    Medium</option>
-                                <option value="high"
-                                    {{ isset($question['level']) && $question['level'] == 'high' ? 'selected' : '' }}>
-                                    High</option>
-                            </select>
-                        </div>
+                <div class="grid grid-cols-3 gap-4 mt-4">
+                    <div>
+                        <label class="font-bold">Time Limit</label>
+                        <input type="number" class="w-full p-2 border rounded"
+                               name="questions[{{ $qIndex }}][time_limit]" value="0">
                     </div>
-
-                    <div class="mt-4">
-                        <label class="text-black font-bold">Correct Answer:</label>
-                        <input type="text" name="questions[{{ $qIndex }}][answer][{{ $index }}]"
-                            value="{{ $option }}" class="w-full p-1 border rounded">
+                    <div>
+                        <label class="font-bold">Set Point</label>
+                        <input type="number" class="w-full p-2 border rounded"
+                               name="questions[{{ $qIndex }}][point]" value="0">
                     </div>
-
-                    <div class="mt-4">
-                        <label class="text-black font-bold">Feedback:</label>
-                        <textarea name="questions[{{ $qIndex }}][feedback]" class="w-full p-2 border rounded">{{ $question['feedback'] ?? '' }}</textarea>
-                    </div>
-
-                    <div class="flex justify-end items-center mt-2">
-                        <label for="select-{{ $qIndex }}" class="mr-2">Select Question</label>
-                        <input id="select-{{ $qIndex }}" type="checkbox"
-                            name="questions[{{ $qIndex }}][select]" value="1">
+                    <div>
+                        <label class="font-bold">Quiz Level</label>
+                        <select name="questions[{{ $qIndex }}][level]" class="w-full p-2 border rounded">
+                            <option value="easy" {{ isset($question['level']) && $question['level'] == 'easy' ? 'selected' : '' }}>Easy</option>
+                            <option value="medium" {{ isset($question['level']) && $question['level'] == 'medium' ? 'selected' : '' }}>Medium</option>
+                            <option value="high" {{ isset($question['level']) && $question['level'] == 'high' ? 'selected' : '' }}>High</option>
+                        </select>
                     </div>
                 </div>
-            @endforeach
-        @else
-            <p class="text-center text-[18px] font-bold mt-4">No questions found.</p>
-        @endif
+
+                <div class="mt-4">
+                    <label class="text-black font-bold">Correct Answer:</label>
+                    <input type="text" name="questions[{{ $qIndex }}][answer]"
+                           value="{{ $question['answer'] ?? '' }}" class="w-full p-1 border rounded">
+                </div>
+
+                <div class="mt-4">
+                    <label class="text-black font-bold">Feedback:</label>
+                    <textarea name="questions[{{ $qIndex }}][feedback]" class="w-full p-2 border rounded">
+                        {{ $question['feedback'] ?? '' }}
+                    </textarea>
+                </div>
+                <div class="flex justify-end items-center mt-2">
+                    <label for="select-{{ $qIndex }}" class="mr-2">Select Question</label>
+                    <input id="select-{{ $qIndex }}" type="checkbox"
+                        name="questions[{{ $qIndex }}][select]" value="1">
+                </div>
+            </div>
+        @endforeach
+    @else
+        <p class="text-center text-[18px] font-bold mt-4">No questions found.</p>
+    @endif
+
 
         <!-- Tombol Generate Quiz -->
         <div class="text-right">
