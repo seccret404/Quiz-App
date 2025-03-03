@@ -2,7 +2,7 @@
     <div class="container mx-auto p-6 bg-white h-full">
         <h1 class="text-2xl font-bold mb-4">List Quiz Start</h1>
 
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-4 gap-6">
             @foreach ($quizzes as $quiz)
                 <div class="border rounded-lg text-[12px] text-[#808080] text-center p-[25px]">
                     <h2 class="text-[18px] text-black font-semibold">{{ $quiz['nama_quiz'] ?? 'Quiz Name Not Available' }}</h2>
@@ -24,12 +24,8 @@
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <a href="{{route('quiz.question', ['quizId' => $quiz['code_quiz']])}}">
-                            <button class="bg-[#4E73DF] text-white px-4 py-2 cursor-pointer rounded mt-4 w-full flex items-center text-[12px]"><img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Quaestions</button>
-                        </a>
-                        <button class="bg-[#4E73DF] text-white px-4 py-2 cursor-pointer rounded mt-4 w-full flex items-center text-[12px]"><img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Quaestions</button>
-                    </div>
+
+                    
                 </div>
             @endforeach
         </div>

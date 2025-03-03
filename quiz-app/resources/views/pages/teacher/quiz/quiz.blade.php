@@ -196,20 +196,19 @@
     @endif
 
     @if ($questions != null)
-
- <!-- Tombol Generate Quiz -->
-    <div class="text-right p-4">
-        <button type="button" id="openModal"
-            class="bg-[#4E73DF] p-3 rounded w-[300px] text-white font-mediumc" >
-            Generate Quiz
-        </button>
-    </div>
+        <!-- Tombol Generate Quiz -->
+        <div class="text-right p-4">
+            <button type="button" id="openModal"
+                class="bg-[#4E73DF] p-3 rounded w-[300px] text-white font-mediumc" >
+                Generate Quiz
+            </button>
+        </div>
     @endif
 
 
         <!-- Modal Pop-up untuk Input Quiz -->
-        <div id="quizModal" class="hidden fixed inset-0 bg-[#f3f4f6] shadow-lg flex justify-center items-center">
-            <div class="bg-white p-[40px] rounded w-[380px]">
+        <div id="quizModal" class="hidden fixed inset-0 bg-[#ffffff] shadow-lg flex justify-center items-center">
+            <div class="bg-white shadow-lg p-[40px] rounded w-[380px]">
                 <h2 class="text-xl font-bold text-[24px] text-center mb-4">Generate Quiz</h2>
 
                 <label>Enter Quiz Name</label>

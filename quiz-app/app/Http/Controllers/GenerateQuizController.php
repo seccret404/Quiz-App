@@ -87,6 +87,16 @@ class GenerateQuizController extends Controller
             return response()->json(['message' => 'No quizzes found']);
         }
 
-        return view('pages.teacher.quiz.index', compact('quizzes'));
+        return view('pages.teacher.quiz.quiz_open', compact('quizzes'));
+    }
+    public function showQuizOngoing()
+    {
+        $quizzes = $this->database->getReference('quizs')->getValue();
+
+        if ($quizzes === null) {
+            return response()->json(['message' => 'No quizzes found']);
+        }
+
+        return view('pages.teacher.quiz.quiz_ongoing', compact('quizzes'));
     }
 }

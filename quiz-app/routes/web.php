@@ -45,12 +45,12 @@ use App\Http\Controllers\GenerateQuizController;
     Route::get('/dashboard/admin', [TeacherController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/quiz', [GenerateQuizController::class, 'index'])->name('generate');
     Route::post('/save-quiz', [GenerateQuizController::class, 'saveQuiz'])->name('save.quiz');
-    Route::get('/quiz', [GenerateQuizController::class, 'showquiz'])->name('show.quiz');
+    Route::get('/dashboard/quiz-open', [GenerateQuizController::class, 'showquiz'])->name('quiz.open');
+    Route::get('/dashboard/quiz-ongoing', [GenerateQuizController::class, 'showQuizOngoing'])->name('quiz.ongoing');
 
 
-    // Route::get('/dashboard/fintech', [DashboardController::class, 'fintech'])->name('quiz');
+
     Route::get('/dashboard/admin/leaderboard', [LeaderboardController::class, 'leaderboard'])->name('leaderboard');
-    // Route::get('/dashboard/orders', [OrderController::class, 'index'])->name('logout');
-    // Route::get('/dashboard/invoices', [InvoiceController::class, 'index'])->name('invoices');
+    Route::get('/dashboard/leadeboard/soal/{quizId}', [LeaderboardController::class, 'showQuestion'])->name('quiz.question');
 
     Route::post('/generate-questions', [PdfQuestionController::class, 'processPDF'])->name('generate.quiz');
