@@ -29,18 +29,19 @@ use App\Http\Controllers\GenerateQuizController;
 */
 
 
-
-    Route::get('/connect',[FirebaseController::class, 'index']);
-
-
-    Route::get('/login', [AuthController::class, 'LoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'Login']);
-    Route::get('/register', [AuthController::class, 'RegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'Register']);
+Route::get('/connect', [FirebaseController::class, 'index']);
 
 
+Route::get('/login', [AuthController::class, 'LoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'Login']);
+Route::get('/register', [AuthController::class, 'RegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'Register']);
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::middleware(['auth', 'admin'])->group(function () {
     // Route for the getting the data feed
-    Route::get('/json-data-feed', [DataFeedController::class, 'getDataFeed'])->name('json_data_feed');
+    // Route::get('/json-data-feed', [DataFeedController::class, 'getDataFeed'])->name('json_data_feed');
 
     Route::get('/dashboard/admin', [TeacherController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/quiz', [GenerateQuizController::class, 'index'])->name('generate');
@@ -54,3 +55,10 @@ use App\Http\Controllers\GenerateQuizController;
     Route::get('/dashboard/leadeboard/soal/{quizId}', [LeaderboardController::class, 'showQuestion'])->name('quiz.question');
 
     Route::post('/generate-questions', [PdfQuestionController::class, 'processPDF'])->name('generate.quiz');
+});
+
+Route::middleware(['auth', 'user'])->group(function () {
+    Route::get('/dashboard/user', function () {
+        return 'HALAMAN USER';
+    });
+});
