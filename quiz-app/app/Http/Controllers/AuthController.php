@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Firebase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -85,6 +86,23 @@ class AuthController extends Controller
 
         session(['user' => $user]);
 
-        return redirect('/dashboard/admin')->with('success', 'Login berhasil');
+        if (isset($user['role']) && $user['role'] === 'admin') {
+            return redirect('/dashboard/admin')->with('success', 'Login berhasil sebagai Admin');
+        } elseif (isset($user['role']) && $user['role'] === 'user') {
+            return redirect('/dashboard/user')->with('success', 'Login berhasil sebagai User');
+        }
+
+        return redirect('/login')->withErrors(['error' => 'Role tidak valid']);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
     }
 }
