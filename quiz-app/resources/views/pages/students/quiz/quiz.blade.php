@@ -60,7 +60,7 @@
                         let progressCircle = document.getElementById("progress");
                         let countdownText = document.getElementById("countdown");
                         let totalDashArray = 282;
-                        let initialCountdown = countdown;  
+                        let initialCountdown = countdown;
 
                         let interval = setInterval(() => {
                             if (countdown > 0) {
@@ -77,8 +77,20 @@
             </div>
 
             {{-- content soal  --}}
-            <div class="">
-
+            <div class="pl-[100px] pr-[100px] pt-[40px] flex flex-col items-center justify-center">
+                <div class="text-white text-center text-[24px]">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua?
+                </div>
+                <div class="mt-6 grid grid-cols-2 gap-10">
+                    @for ($i = 0; $i < 4; $i++)
+                        <form action="">
+                            <button class="bg-[#4E73DF]  flex items-center text-white w-[300px]">
+                                <div class="border border white mr-2 p-4">A</div>
+                                <div class="p-2">Answerr</div>
+                            </button>
+                        </form>
+                    @endfor
+                </div>
             </div>
         </div>
     </div>
