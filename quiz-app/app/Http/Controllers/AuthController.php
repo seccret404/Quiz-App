@@ -89,7 +89,7 @@ class AuthController extends Controller
         if (isset($user['role']) && $user['role'] === 'admin') {
             return redirect('/dashboard/admin')->with('success', 'Login berhasil sebagai Admin');
         } elseif (isset($user['role']) && $user['role'] === 'user') {
-            return redirect('/dashboard/user')->with('success', 'Login berhasil sebagai User');
+            return redirect('/student/home')->with('success', 'Login berhasil sebagai User');
         }
 
         return redirect('/login')->withErrors(['error' => 'Role tidak valid']);

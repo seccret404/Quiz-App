@@ -43,6 +43,7 @@ class GenerateQuizController extends Controller
                 'nama_quiz'      => $request->nama_quiz,
                 'code_quiz'      => $request->code_quiz,
                 'type_quiz'      => $request->type_quiz,
+                'status'         =>"Open",
                 'total_question' => count(array_filter($request->questions, fn($q) => isset($q['select']))),
                 'start_time'     => $request->start_time,
                 'end_time'       => $request->end_time,

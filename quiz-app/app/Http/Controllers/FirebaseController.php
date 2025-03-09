@@ -41,11 +41,12 @@ class FirebaseController extends Controller
                 'type_quiz'      => '',
                 'code_quiz'      => '',
                 'total_question' => 0,
+                'status'         => 'Open',
                 'start_time'     => '',
                 'end_time'       => '',
                 'created_at'     => now()->toDateTimeString(),
             ];
-    
+
             $this->database->getReference('quizs')->push($quizFields);
 
             $questionFields = [
@@ -61,7 +62,7 @@ class FirebaseController extends Controller
                 'timer'           => 0,
                 'created_at'      => now()->toDateTimeString(),
             ];
-    
+
             $this->database->getReference('questions')->push($questionFields);
 
             return response()->json([

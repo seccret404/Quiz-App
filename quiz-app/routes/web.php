@@ -15,19 +15,9 @@ use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\PdfQuestionController;
+use App\Http\Controllers\QuizStudentController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\GenerateQuizController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 
 Route::get('/connect', [FirebaseController::class, 'index']);
@@ -41,9 +31,6 @@ Route::post('/register', [AuthController::class, 'Register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'admin'])->group(function () {
-    // Route for the getting the data feed
-    // Route::get('/json-data-feed', [DataFeedController::class, 'getDataFeed'])->name('json_data_feed');
-
     // Admin
     Route::get('/dashboard/admin', [TeacherController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/quiz', [GenerateQuizController::class, 'index'])->name('generate');
@@ -53,11 +40,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard/admin/leaderboard', [LeaderboardController::class, 'leaderboard'])->name('leaderboard');
     Route::get('/dashboard/leadeboard/soal/{quizId}', [LeaderboardController::class, 'showQuestion'])->name('quiz.question');
     Route::post('/generate-questions', [PdfQuestionController::class, 'processPDF'])->name('generate.quiz');
-
-
 });
 
 Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/student/home', [StudentsController::class,'home'])->name('home.student');
     Route::get('/student/dashboard', [StudentsController::class,'dashboard'])->name('my.dashboard');
+    Route::get('/student/quiz',[QuizStudentController::class,'quizPage'])->name('student.quiz');
+    
 });
