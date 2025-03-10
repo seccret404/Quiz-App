@@ -84,20 +84,43 @@ class GenerateQuizController extends Controller
     {
         $quizzes = $this->database->getReference('quizs')->getValue();
 
-        if ($quizzes === null) {
-            return response()->json(['message' => 'No quizzes found']);
+        if (!empty($quizzes) && is_array($quizzes)) {
+            $filteredQuizzes = array_filter($quizzes, function ($quiz) {
+                return isset($quiz['status']) && $quiz['status'] === 'Open';
+            });
+        } else {
+            $filteredQuizzes = [];
         }
 
-        return view('pages.teacher.quiz.quiz_open', compact('quizzes'));
+        return view('pages.teacher.quiz.quiz_open', compact('filteredQuizzes'));
     }
+
+    public function quizStart($id)
+    {
+        $quizRef = $this->database->getReference('quizs/' . $id);
+
+        // dd($id);
+        $quizRef->update([
+            'status' => 'Ongoing'
+        ]);
+
+        return redirect()->route('quiz.ongoing')->with('success', 'Quiz started successfully!');
+
+    }
+
+
     public function showQuizOngoing()
     {
         $quizzes = $this->database->getReference('quizs')->getValue();
 
-        if ($quizzes === null) {
-            return response()->json(['message' => 'No quizzes found']);
+        if (!empty($quizzes) && is_array($quizzes)) {
+            $filteredQuizzes = array_filter($quizzes, function ($quiz) {
+                return isset($quiz['status']) && $quiz['status'] === 'Ongoing';
+            });
+        } else {
+            $filteredQuizzes = [];
         }
 
-        return view('pages.teacher.quiz.quiz_ongoing', compact('quizzes'));
+        return view('pages.teacher.quiz.quiz_ongoing', compact('filteredQuizzes'));
     }
 }

@@ -50,55 +50,61 @@ class AuthController extends Controller
     }
 
     public function Login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'email' => 'required|string|email',
+        'password' => 'required|string',
+    ]);
 
-        $usersRef = $this->database->getReference('users')->getValue();
-        // dd($usersRef);
+    $usersRef = $this->database->getReference('users')->getValue();
 
-        if (!$usersRef) {
-            return redirect()->back()->withErrors(['email' => 'Email tidak ditemukan']);
-        }
-
-        $user = null;
-        foreach ($usersRef as $userId => $userData) {
-            if (is_array($userData) && isset($userData['email']) && $userData['email'] === $request->email) {
-                $user = $userData;
-                $user['id'] = $userId;
-                break;
-            }
-        }
-
-        if (!$user) {
-            return redirect()->back()->withErrors(['email' => 'Email tidak ditemukan']);
-        }
-
-        if (!isset($user['password']) || empty($user['password'])) {
-            return redirect()->back()->withErrors(['password' => 'Password tidak ditemukan di database']);
-        }
-
-        if (!Hash::check($request->password, $user['password'])) {
-            return redirect()->back()->withErrors(['password' => 'Password tidak valid']);
-        }
-
-        session(['user' => $user]);
-
-        if (isset($user['role']) && $user['role'] === 'admin') {
-            return redirect('/dashboard/admin')->with('success', 'Login berhasil sebagai Admin');
-        } elseif (isset($user['role']) && $user['role'] === 'user') {
-            return redirect('/student/home')->with('success', 'Login berhasil sebagai User');
-        }
-
-        return redirect('/login')->withErrors(['error' => 'Role tidak valid']);
+    if (!$usersRef) {
+        return redirect()->back()->withErrors(['email' => 'Email tidak ditemukan']);
     }
+
+    $user = null;
+    foreach ($usersRef as $userId => $userData) {
+        if (is_array($userData) && isset($userData['email']) && $userData['email'] === $request->email) {
+            $user = $userData;
+            $user['id'] = $userId;
+            break;
+        }
+    }
+
+    if (!$user) {
+        return redirect()->back()->withErrors(['email' => 'Email tidak ditemukan']);
+    }
+
+    if (!isset($user['password']) || empty($user['password'])) {
+        return redirect()->back()->withErrors(['password' => 'Password tidak ditemukan di database']);
+    }
+
+    if (!Hash::check($request->password, $user['password'])) {
+        return redirect()->back()->withErrors(['password' => 'Password tidak valid']);
+    }
+
+    // Menyimpan data user ke dalam sesi
+    session(['user' => $user]);
+
+    // Menyimpan user ID dalam sesi agar bisa diakses melalui auth()->id()
+    session(['user_id' => $user['id']]);
+
+    if (isset($user['role']) && $user['role'] === 'admin') {
+        return redirect('/dashboard/admin')->with('success', 'Login berhasil sebagai Admin');
+    } elseif (isset($user['role']) && $user['role'] === 'user') {
+        return redirect('/student/home')->with('success', 'Login berhasil sebagai User');
+    }
+
+    return redirect('/login')->withErrors(['error' => 'Role tidak valid']);
+}
+
 
     public function logout(Request $request)
     {
         Auth::logout();
-
+        // Menghapus sesi pengguna
+        $request->session()->forget('user');
+        $request->session()->forget('user_id');
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();

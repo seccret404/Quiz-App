@@ -65,6 +65,28 @@ class FirebaseController extends Controller
 
             $this->database->getReference('questions')->push($questionFields);
 
+            $attemptQuizFields = [
+                'id'        => '',
+                'user_id'   => '',
+                'quiz_id'   => '',
+                'start_time'=> '',
+                'end_time'  => '',
+                'score'     => '',
+                'status'    => '',
+            ];
+
+            $this->database->getReference('attempt_quizs')->push($attemptQuizFields);
+
+                $answerQuizFields = [
+                    'id' => '',
+                    'id_user' => '',
+                    'id_quiz' => '',
+                    'selected_option' => '',
+                    'is_correct' => '',
+                ];
+
+                $this->database->getReference('answers')->push($answerQuizFields);
+
             return response()->json([
                 'message' => 'Firebase connected!!',
             ]);

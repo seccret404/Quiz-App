@@ -24,7 +24,10 @@
 
             <!-- Header: Right side -->
             <div class="flex items-center space-x-3">
-                <img src="" alt="piu">
+                <form action="{{route('logout')}}" method="post">
+                    @csrf
+                    <button type="submit">logout</button>
+                </form>
                 <hr class="w-px h-6 bg-gray-200 dark:bg-gray-700/60 border-none" />
 
                 <button class="bg-[#26107459] text-white p-4 rounded cursor-pointer" onclick="window.location.href='{{ route('my.dashboard') }}'">Mahes's Dashboard</button>

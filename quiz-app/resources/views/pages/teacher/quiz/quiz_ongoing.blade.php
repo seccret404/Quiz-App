@@ -2,8 +2,33 @@
     <div class="container mx-auto p-6 bg-white h-full">
         <h1 class="text-2xl font-bold mb-4">List Quiz Start</h1>
 
+        @if (session('success'))
+        <div x-data="{ showModal: true }"
+             x-init="setTimeout(() => showModal = false, 500)"
+             x-show="showModal"
+             class="fixed inset-0 flex items-center justify-center z-50 bg-[#11111164] backdrop-blur-sm transition-opacity duration-300"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+
+            <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+                <h2 class="text-xl font-semibold text-green-600">Success!</h2>
+                <p class="mt-2 text-gray-700">{{ session('success') }}</p>
+                <div class="mt-4 flex justify-end">
+                    <button @click="showModal = false" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
         <div class="grid grid-cols-4 gap-6">
-            @foreach ($quizzes as $quiz)
+            @foreach ($filteredQuizzes as $quiz)
                 <div class="border rounded-lg text-[12px] text-[#808080] text-center p-[25px]">
                     <h2 class="text-[18px] text-black font-semibold">{{ $quiz['nama_quiz'] ?? 'Quiz Name Not Available' }}</h2>
                     <p class="m-4">Total Questions: {{ $quiz['total_question'] ?? 'N/A' }}</p>
@@ -25,7 +50,7 @@
                         </div>
                     </div>
 
-                    
+
                 </div>
             @endforeach
         </div>
