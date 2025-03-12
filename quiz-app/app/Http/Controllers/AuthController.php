@@ -98,7 +98,6 @@ class AuthController extends Controller
     return redirect('/login')->withErrors(['error' => 'Role tidak valid']);
 }
 
-
     public function logout(Request $request)
     {
         Auth::logout();

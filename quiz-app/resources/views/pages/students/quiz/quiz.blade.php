@@ -22,7 +22,7 @@
                         {{ $currentQuestion['score_question'] }}.0
                     </div>
                     <div class="w-[123px] flex items-center justify-center text-white rounded-[5px] p-4"
-                         style="background-color: {{ $currentQuestion['level_questions'] === 'medium' ? '#FCC21B' : ($currentQuestion['level_questions'] === 'high' ? 'red' : '#137B00') }}">
+                         style="background-color: {{ $currentQuestion['level_questions'] === 'medium' ? '#FCC21B' : ($currentQuestion['level_questions'] === 'high' ? 'red' : '#137B00') }};">
                         <i class="bi bi-bar-chart"></i>
                         {{ $currentQuestion['level_questions'] }}
                     </div>
@@ -40,31 +40,54 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Alert jika jawaban salah -->
+            @if(session('error'))
+                <div class="text-red-500 bg-red-100 p-4 mb-4 rounded text-center">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <script>
                 let countdown = parseInt(document.getElementById("countdown").textContent);
                 let progressCircle = document.getElementById("progress");
                 let countdownText = document.getElementById("countdown");
                 let totalDashArray = 282;
                 let initialCountdown = countdown;
-                let interval = setInterval(() => {
-                    if (countdown > 0) {
-                        countdownText.textContent = countdown;
-                        countdown--;
-                        let progress = (countdown / initialCountdown) * totalDashArray;
-                        progressCircle.style.strokeDashoffset = progress;
-                    } else {
-                        clearInterval(interval);
-                        document.getElementById('next-question').submit();
-                    }
-                }, 1000);
+                let interval;
+
+                function startTimer() {
+                    interval = setInterval(() => {
+                        if (countdown > 0) {
+                            countdownText.textContent = countdown;
+                            countdown--;
+                            let progress = (countdown / initialCountdown) * totalDashArray;
+                            progressCircle.style.strokeDashoffset = progress;
+                        } else {
+                            clearInterval(interval);
+                            document.getElementById('next-question').submit();
+                        }
+                    }, 1000);
+                }
+
+                function stopTimer() {
+                    clearInterval(interval);
+                    progressCircle.style.animation = "none"; // Hentikan animasi stroke
+                }
+
+                // Jalankan timer saat halaman dimuat
+                startTimer();
             </script>
+
             <div class="pl-[100px] pr-[100px] pt-[40px] flex flex-col items-center justify-center">
                 <div class="text-white text-center text-[24px] mb-6">
                     {{ $currentQuestion['question'] }}
                 </div>
                 <div class="mt-6 grid grid-cols-2 gap-10">
                     @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
-                    <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}" method="POST">
+                    <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                          method="POST"
+                          onsubmit="stopTimer()">
                         @csrf
                         <input type="hidden" name="selected_option" value="{{ $optionKey }}">
                         <button type="submit" class="bg-[#4E73DF] flex items-center text-white w-[300px] p-3">
@@ -75,11 +98,13 @@
                     @endforeach
                 </div>
             </div>
+
+            <!-- Form untuk auto-submit saat waktu habis -->
             <form id="next-question" method="POST" action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}">
                 @csrf
                 <input type="hidden" name="selected_option" value="">
             </form>
-           
+
         </div>
     </div>
 </body>
