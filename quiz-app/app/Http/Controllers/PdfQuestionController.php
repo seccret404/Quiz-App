@@ -25,21 +25,56 @@ class PdfQuestionController extends Controller
 
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey";
         // $prompt = "Buatkan $totalQuestions soal tipe $questionType berdasarkan teks berikut kedalam format array [] pisahkan soal dengan option nya dan buat feedback(penjelasan) terhadap jawaban yang benar tersebut:\n" . $text;
-        $prompt = "Buatkan $totalQuestions soal pilihan ganda dengan format JSON yang valid.
-        Setiap soal memiliki pertanyaan, 4 opsi jawaban (A, B, C, D), jawaban yang benar, dan feedback untuk jawaban yang benar.
-        Gunakan format berikut:
 
-        [
-        {
-            \"question\": \"Apa ibukota Indonesia?\",
-            \"options\": { \"A\": \"Jakarta\", \"B\": \"Surabaya\", \"C\": \"Bandung\", \"D\": \"Medan\" },
-            \"answer\": \"A\",
-            \"feedback\": \"Jakarta adalah ibukota Indonesia sejak tahun 1945.\"
-        },
-        ...
-        ]
+        if ($questionType == "Multiple Choice") {
+            $prompt = "Buatkan $totalQuestions soal pilihan ganda dengan format JSON yang valid.
+            Setiap soal memiliki pertanyaan, 4 opsi jawaban (A, B, C, D), jawaban yang benar, dan feedback untuk jawaban yang benar.
+            Gunakan format berikut:
 
-        Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
+            [
+            {
+                \"question\": \"Apa ibukota Indonesia?\",
+                \"options\": { \"A\": \"Jakarta\", \"B\": \"Surabaya\", \"C\": \"Bandung\", \"D\": \"Medan\" },
+                \"answer\": \"A\",
+                \"feedback\": \"Jakarta adalah ibukota Indonesia sejak tahun 1945.\"
+            },
+            ...
+            ]
+
+            Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
+        } elseif($questionType == "Essay"){
+            $prompt = "Buatkan $totalQuestions soal essay dengan format JSON yang valid.
+            Setiap soal memiliki pertanyaan, jawaban yang benar, dan feedback untuk jawaban yang benar.
+            Gunakan format berikut:
+
+            [
+            {
+                \"question\": \"Jelaskan bagaimana proses fotosintesis berlangsung?\",
+                \"answer\": \"Fotosintesis adalah proses di mana tumbuhan menggunakan sinar matahari untuk mengubah karbon dioksida dan air menjadi glukosa dan oksigen...\",
+                \"feedback\": \"Jawaban yang tepat harus mencakup penjelasan tentang klorofil, cahaya matahari, dan proses kimia yang terjadi.\"
+            },
+            ...
+            ]
+
+            Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
+        } elseif($questionType == "True False"){
+            $prompt = "Buatkan $totalQuestions soal true/false dengan format JSON yang valid.
+            Setiap soal memiliki pertanyaan, jawaban (True atau False), dan feedback mengapa jawaban tersebut benar atau salah.
+            Gunakan format berikut:
+
+            [
+            {
+                \"question\": \"Matahari mengelilingi bumi.\",
+                \"answer\": \"False\",
+                \"feedback\": \"Matahari tidak mengelilingi bumi. Sebaliknya, bumi yang mengelilingi matahari.\"
+            },
+            ...
+            ]
+
+            Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
+        } else{
+            return redirect()->back()->with('error', 'Tipe soal tidak valid. Pilih antara "Multiple Choice", "Essay", atau "True False".');
+        }
 
 
         //Persiapan pengiriman Prompt
@@ -130,10 +165,8 @@ class PdfQuestionController extends Controller
             session(['question_type' => request('question_type')]);
 
             return redirect()->route('generate');
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
-
 }

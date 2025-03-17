@@ -62,7 +62,7 @@ class GenerateQuizController extends Controller
                     'id_quiz'         => $quizId,
                     'code_quiz'       => $request->code_quiz,
                     'question'        => $question['question'],
-                    'options'         => $question['options'],
+                    // 'options'         => $question['options'],
                     'correct_answer'  => $question['answer'],
                     'level_questions' => $question['level'],
                     'feedback'        => $question['feedback'],
@@ -70,6 +70,12 @@ class GenerateQuizController extends Controller
                     'timer'           => $question['time_limit'],
                     'created_at'      => now(),
                 ];
+
+                if($request->input('type_quiz') == 'Multiple Choice' && isset($question['options'])){
+                    $questionData['options'] = $question['options'];
+                } else{
+                    $data['options'] = null;
+                }
 
                 $questionRef->push($questionData);
             }
