@@ -41,12 +41,7 @@
                 </div>
             </div>
 
-            <!-- Alert jika jawaban salah -->
-            @if(session('error'))
-                <div class="text-red-500 bg-red-100 p-4 mb-4 rounded text-center">
-                    {{ session('error') }}
-                </div>
-            @endif
+
 
             <script>
                 let countdown = parseInt(document.getElementById("countdown").textContent);
@@ -97,7 +92,27 @@
                     </form>
                     @endforeach
                 </div>
+                   {{-- Navigasi Soal --}}
+            <div class="flex justify-between mt-6">
+                @php
+                    $currentIndex = array_search($currentQuestionId, $questionIds);
+                    $prevQuestionId = $currentIndex > 0 ? $questionIds[$currentIndex - 1] : null;
+                    $nextQuestionId = $currentIndex < count($questionIds) - 1 ? $questionIds[$currentIndex + 1] : null;
+                @endphp
+
             </div>
+                {{-- Tombol Selanjutnya --}}
+                @if ($nextQuestionId && $errors->has('feedback'))
+                <div class="p-6 textc-center border rounded">
+                    {{ $errors->first('feedback') }}
+                </div>
+                <a href="{{ route('quiz.question', ['quizId' => $quizId, 'questionId' => $nextQuestionId ?? $currentQuestionId, 'code_quiz' => request()->query('code_quiz')]) }}"
+                class="bg-blue-500 text-white p-3 rounded mt-2">
+                    Next →
+                </a>
+                @endif
+            </div>
+
 
             <!-- Form untuk auto-submit saat waktu habis -->
             <form id="next-question" method="POST" action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}">

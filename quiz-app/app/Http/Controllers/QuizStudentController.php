@@ -74,6 +74,7 @@ class QuizStudentController extends Controller
         $userId = session('user_id'); // ID pengguna yang sedang login
         $selectedAnswer = $request->input('selected_option');
         $isCorrect = false; // Default jawaban salah
+        $feedback = null; // Default feedback kosong
 
         // Ambil soal saat ini
         $questionRef = $this->database->getReference("questions/{$questionId}")->getValue();
@@ -84,10 +85,13 @@ class QuizStudentController extends Controller
 
         // Dapatkan jawaban benar dari soal
         $correctAnswer = $questionRef['correct_answer'] ?? null;
+        $scoreToAdd = $questionRef['score_question'] ?? 0; // Ambil skor soal
 
         // Cek apakah jawaban benar
         if ($selectedAnswer === $correctAnswer) {
             $isCorrect = true;
+        } else {
+            $feedback = $questionRef['feedback'] ?? 'Jawaban salah! Coba lagi dengan lebih teliti.';
         }
 
         // Simpan jawaban pengguna ke database
@@ -99,6 +103,28 @@ class QuizStudentController extends Controller
             'is_correct' => $isCorrect,
         ];
         $this->database->getReference('answers')->push($answerQuizFields);
+
+        // **UPDATE SCORE DI NODE attempt_quizs**
+        $attemptsRef = $this->database->getReference("attempt_quizs")->getValue();
+        $attemptId = null;
+
+        // Cari attempt berdasarkan quiz_id dan user_id
+        foreach ($attemptsRef as $key => $attempt) {
+            if ($attempt['quiz_id'] === $quizId && $attempt['user_id'] === $userId) {
+                $attemptId = $key;
+                break;
+            }
+        }
+
+        // Jika attempt ditemukan, update score
+        if ($attemptId && $isCorrect) {
+            $attemptRef = $this->database->getReference("attempt_quizs/{$attemptId}");
+            $currentScore = $attemptRef->getChild('score')->getValue() ?? 0;
+            $newScore = $currentScore + $scoreToAdd;
+
+            // Update skor di Firebase
+            $attemptRef->update(['score' => $newScore]);
+        }
 
         // Ambil semua soal berdasarkan `code_quiz`
         $questionsRef = $this->database->getReference("questions")
@@ -117,23 +143,27 @@ class QuizStudentController extends Controller
 
         // Tentukan soal berikutnya
         $nextQuestionId = $currentIndex !== false && isset($questionKeys[$currentIndex + 1])
-                ? $questionKeys[$currentIndex + 1]
-                : null;
+            ? $questionKeys[$currentIndex + 1]
+            : null;
 
+        // Jika jawaban salah, tetap di halaman yang sama dan tampilkan feedback
+        if (!$isCorrect) {
+            return redirect()->back()->withErrors(['feedback' => $feedback]);
+        }
 
+        // Jika benar, lanjut ke soal berikutnya atau selesai
         if ($nextQuestionId) {
             return redirect()->route('quiz.question', [
                 'quizId' => $quizId,
                 'questionId' => $nextQuestionId,
                 'code_quiz' => $questionRef['code_quiz']
             ]);
-
         } else {
-            // Jika tidak ada soal berikutnya, redirect ke halaman selesai
             return redirect()->route('quiz.completed', ['quizId' => $quizId])
                 ->with('success', 'Quiz telah selesai!');
         }
     }
+
 
 
     public function joinQuiz(Request $request)

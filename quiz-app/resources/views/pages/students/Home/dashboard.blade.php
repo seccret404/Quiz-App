@@ -17,7 +17,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="grid grid-cols-4 gap-6 mt-[70px]">
                 @for ($i = 0; $i < 5; $i++)
                     <div class="border bg-white shadow rounded-lg text-[12px] text-[#808080] text-center p-[25px]">
