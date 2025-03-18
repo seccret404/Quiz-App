@@ -17,7 +17,7 @@ class PdfQuestionController extends Controller
         return $pdf->getText();
     }
 
-    private function generateQuestions($text, $totalQuestions, $questionType)
+    private function generateQuestions($text, $totalQuestions, $questionType, $difficultyLevel)
     {
         //persipan API GEMINI
 
@@ -29,6 +29,12 @@ class PdfQuestionController extends Controller
         if ($questionType == "Multiple Choice") {
             $prompt = "Buatkan $totalQuestions soal pilihan ganda dengan format JSON yang valid.
             Setiap soal memiliki pertanyaan, 4 opsi jawaban (A, B, C, D), jawaban yang benar, dan feedback untuk jawaban yang benar.
+            Semua soal yang dihasilkan harus memiliki tingkat kesulitan: $difficultyLevel.
+
+                - Jika tingkat kesulitan adalah 'easy', buatlah pertanyaan yang sederhana dan jawaban yang langsung jelas.
+                - Jika tingkat kesulitan adalah 'medium', buatlah pertanyaan yang membutuhkan pemahaman konsep yang lebih dalam.
+                - Jika tingkat kesulitan adalah 'high', buatlah pertanyaan yang menantang dan membutuhkan analisis atau aplikasi konsep yang kompleks.
+
             Gunakan format berikut:
 
             [
@@ -42,9 +48,15 @@ class PdfQuestionController extends Controller
             ]
 
             Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
-        } elseif($questionType == "Essay"){
+        } elseif ($questionType == "Essay") {
             $prompt = "Buatkan $totalQuestions soal essay dengan format JSON yang valid.
             Setiap soal memiliki pertanyaan, jawaban yang benar, dan feedback untuk jawaban yang benar.
+            Semua soal yang dihasilkan harus memiliki tingkat kesulitan: $difficultyLevel.
+
+                - Jika tingkat kesulitan adalah 'easy', buatlah pertanyaan yang sederhana dan jawaban yang singkat.
+                - Jika tingkat kesulitan adalah 'medium', buatlah pertanyaan yang membutuhkan penjelasan konsep yang lebih mendalam.
+                - Jika tingkat kesulitan adalah 'high', buatlah pertanyaan yang menantang dan membutuhkan analisis atau sintesis informasi yang kompleks.
+
             Gunakan format berikut:
 
             [
@@ -57,9 +69,15 @@ class PdfQuestionController extends Controller
             ]
 
             Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
-        } elseif($questionType == "True False"){
+        } elseif ($questionType == "True False") {
             $prompt = "Buatkan $totalQuestions soal true/false dengan format JSON yang valid.
             Setiap soal memiliki pertanyaan, jawaban (True atau False), dan feedback mengapa jawaban tersebut benar atau salah.
+            Semua soal yang dihasilkan harus memiliki tingkat kesulitan: $difficultyLevel.
+
+                - Jika tingkat kesulitan adalah 'easy', buatlah pertanyaan yang sederhana dan jawaban yang langsung jelas.
+                - Jika tingkat kesulitan adalah 'medium', buatlah pertanyaan yang membutuhkan pemahaman konsep yang lebih dalam.
+                - Jika tingkat kesulitan adalah 'high', buatlah pertanyaan yang menantang dan membutuhkan analisis atau aplikasi konsep yang kompleks.
+
             Gunakan format berikut:
 
             [
@@ -72,7 +90,7 @@ class PdfQuestionController extends Controller
             ]
 
             Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
-        } else{
+        } else {
             return redirect()->back()->with('error', 'Tipe soal tidak valid. Pilih antara "Multiple Choice", "Essay", atau "True False".');
         }
 
@@ -101,7 +119,8 @@ class PdfQuestionController extends Controller
             $request->validate([
                 'pdf' => 'required|mimes:pdf|max:2048',
                 'total_questions' => 'required|integer|min:1',
-                'question_type' => 'required|string'
+                'question_type' => 'required|string',
+                'difficulty_level' => 'required|in:easy,medium,high',
             ]);
 
             // Simpan file PDF ke storage
@@ -111,7 +130,7 @@ class PdfQuestionController extends Controller
             $text = $this->extractTextFromPDF(storage_path("app/$pdfPath"));
 
             // Kirim teks ke API Gemini untuk generate soal
-            $response = $this->generateQuestions($text, $request->total_questions, $request->question_type);
+            $response = $this->generateQuestions($text, $request->total_questions, $request->question_type, $request->difficulty_level);
 
             // Ambil raw JSON dari respons Gemini
             $rawJson = data_get($response, 'candidates.0.content.parts.0.text');
@@ -163,6 +182,7 @@ class PdfQuestionController extends Controller
             // 7️⃣ Simpan ke session
             session()->flash('questions', $questions);
             session(['question_type' => request('question_type')]);
+            session(['difficulty_level' => request('difficulty_level')]);
 
             return redirect()->route('generate');
         } catch (\Exception $e) {

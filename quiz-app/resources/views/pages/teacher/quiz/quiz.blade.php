@@ -118,6 +118,15 @@
                         <option value="True False">True False</option>
                     </select>
                 </div>
+                <div class="">
+                    <div class="text-[16px] font-bold">Difficulty Level</div>
+                    <select name="difficulty_level" id="difficulty_level" class="w-full h-[53px] rounded">
+                        <option selected>Select</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
                 <button type="submit" class="p-[12px] bg-[#4E73DF] text-white rounded-[5px] mt-4">Generate
                     Questions</button>
             </div>
@@ -129,6 +138,7 @@
         @csrf
         {{-- <input type="hidden" name="id_user" value="{{ auth()->user()->id }}"> --}}
         <input type="hidden" name="type_quiz" value="{{ session('question_type') }}">
+        <input type="hidden" name="difficulty_level" value="{{ session('difficulty_level') }}">
 
         @if (isset($questions) && is_array($questions))
             @foreach ($questions as $qIndex => $question)
@@ -167,7 +177,7 @@
                                 <input type="number" class="w-full p-2 border rounded"
                                     name="questions[{{ $qIndex }}][point]" value="0">
                             </div>
-                            <div>
+                            {{-- <div>
                                 <label class="font-bold">Quiz Level</label>
                                 <select name="questions[{{ $qIndex }}][level]" class="w-full p-2 border rounded">
                                     <option value="easy"
@@ -180,7 +190,7 @@
                                         {{ isset($question['level']) && $question['level'] == 'high' ? 'selected' : '' }}>
                                         High</option>
                                 </select>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
 
