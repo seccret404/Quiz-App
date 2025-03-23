@@ -49,21 +49,27 @@ class PdfQuestionController extends Controller
 
             Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
         } elseif ($questionType == "Essay") {
-            $prompt = "Buatkan $totalQuestions soal essay dengan format JSON yang valid.
-            Setiap soal memiliki pertanyaan, jawaban yang benar, dan feedback untuk jawaban yang benar.
-            Semua soal yang dihasilkan harus memiliki tingkat kesulitan: $difficultyLevel.
+            $prompt = "Buatkan $totalQuestions pernyataan dengan format JSON yang valid.
+            Setiap pernyataan memiliki informasi singkat, jawaban yang berupa kata atau frasa pendek, dan feedback untuk jawaban yang benar.
+            Pernyataan yang dihasilkan tidak berupa pertanyaan.
+            Semua pernyataan yang dihasilkan harus memiliki tingkat kesulitan: $difficultyLevel.
 
-                - Jika tingkat kesulitan adalah 'easy', buatlah pertanyaan yang sederhana dan jawaban yang singkat.
-                - Jika tingkat kesulitan adalah 'medium', buatlah pertanyaan yang membutuhkan penjelasan konsep yang lebih mendalam.
-                - Jika tingkat kesulitan adalah 'high', buatlah pertanyaan yang menantang dan membutuhkan analisis atau sintesis informasi yang kompleks.
+                - Jika tingkat kesulitan adalah 'easy', buatlah pernyataan yang sederhana dengan jawaban yang langsung jelas.
+                - Jika tingkat kesulitan adalah 'medium', buatlah pernyataan yang membutuhkan pemahaman konsep yang lebih mendalam.
+                - Jika tingkat kesulitan adalah 'high', buatlah pernyataan yang menantang dan membutuhkan analisis konsep yang lebih kompleks.
 
             Gunakan format berikut:
 
             [
             {
-                \"question\": \"Jelaskan bagaimana proses fotosintesis berlangsung?\",
-                \"answer\": \"Fotosintesis adalah proses di mana tumbuhan menggunakan sinar matahari untuk mengubah karbon dioksida dan air menjadi glukosa dan oksigen...\",
-                \"feedback\": \"Jawaban yang tepat harus mencakup penjelasan tentang klorofil, cahaya matahari, dan proses kimia yang terjadi.\"
+                \"question\": \"Penemu lampu pijar.\",
+                \"answer\": \"Thomas Alva Edison.\",
+                \"feedback\": \"Thomas Alva Edison menemukan lampu pijar pada tahun 1879.\"
+            },
+            {
+                \"question\": \"Ibu kota Indonesia.\",
+                \"answer\": \"Jakarta.\",
+                \"feedback\": \"Jakarta adalah ibu kota Indonesia sejak tahun 1945.\"
             },
             ...
             ]
