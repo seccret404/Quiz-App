@@ -197,8 +197,9 @@
                     <div class="mt-4">
                         <label class="text-black">Correct Answer:</label> <br>
                         @if (session('question_type') == 'Essay')
-                            <textarea name="questions[{{ $qIndex }}][answer]"
-                                class="bg-[#28A745] w-full font-medium text-white border-none p-1 rounded">{{ $question['answer'] ?? '' }}</textarea>
+                            <input type="text" name="questions[{{ $qIndex }}][answer]"
+                                value="{{ $question['answer'] ?? '' }}"
+                                class="bg-[#28A745] w-full font-medium text-white border-none p-1 rounded">
                         @elseif (session('question_type') == 'True False')
                             <select name="questions[{{ $qIndex }}][answer]"
                                 class="bg-[#28A745] w-[100px] font-medium text-white border-none p-1 rounded">
@@ -212,7 +213,7 @@
                         @else
                             <input type="text" name="questions[{{ $qIndex }}][answer]"
                                 value="{{ $question['answer'] ?? '' }}"
-                                class="bg-[#28A745] w-[30px] font-medium text-white text-center border-none p-1 rounded">
+                                class="bg-[#28A745] w-[30px] font-medium text-white border-none p-1 rounded">
                         @endif
                     </div>
 
