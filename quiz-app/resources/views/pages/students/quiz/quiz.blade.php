@@ -51,7 +51,17 @@
                 let initialCountdown = countdown;
                 let interval;
 
+                // Cek apakah ada feedback error
+                let hasFeedbackError = "{{ $errors->has('feedback') ? 'true' : 'false' }}" === 'true';
+
                 function startTimer() {
+                    if (hasFeedbackError) {
+                        // Jika jawaban salah, hentikan timer dan sembunyikan submit
+                        countdownText.textContent = "X";
+                        progressCircle.style.strokeDashoffset = totalDashArray;
+                        return;
+                    }
+
                     interval = setInterval(() => {
                         if (countdown > 0) {
                             countdownText.textContent = countdown;
@@ -70,8 +80,10 @@
                     progressCircle.style.animation = "none"; // Hentikan animasi stroke
                 }
 
-                // Jalankan timer saat halaman dimuat
-                startTimer();
+                // Jalankan timer hanya jika tidak ada feedback error
+                if (!hasFeedbackError) {
+                    startTimer();
+                }
             </script>
 
             <div class="pl-[100px] pr-[100px] pt-[40px] flex flex-col items-center justify-center">
@@ -80,18 +92,22 @@
                 </div>
                 <div class="mt-6 grid grid-cols-2 gap-10">
                     @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
-                    <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                          method="POST"
-                          onsubmit="stopTimer()">
-                        @csrf
-                        <input type="hidden" name="selected_option" value="{{ $optionKey }}">
-                        <button type="submit" class="bg-[#4E73DF] flex items-center text-white w-[300px] p-3">
-                            <div class="border border-white mr-2 p-4">{{ $optionKey }}</div>
-                            <div class="p-2">{{ $optionValue }}</div>
-                        </button>
-                    </form>
+                        @if (!$errors->has('feedback'))
+                            <!-- Hanya tampilkan tombol submit jika tidak ada error -->
+                            <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                                  method="POST"
+                                  onsubmit="stopTimer()">
+                                @csrf
+                                <input type="hidden" name="selected_option" value="{{ $optionKey }}">
+                                <button type="submit" class="bg-[#4E73DF] flex items-center text-white w-[300px] p-3">
+                                    <div class="border border-white mr-2 p-4">{{ $optionKey }}</div>
+                                    <div class="p-2">{{ $optionValue }}</div>
+                                </button>
+                            </form>
+                        @endif
                     @endforeach
                 </div>
+
                    {{-- Navigasi Soal --}}
             <div class="flex justify-between mt-6">
                 @php
