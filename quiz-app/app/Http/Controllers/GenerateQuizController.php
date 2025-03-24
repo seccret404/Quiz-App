@@ -32,7 +32,6 @@ class GenerateQuizController extends Controller
                 'start_time' => 'required|date',
                 'end_time' => 'required|date|after:start_time',
                 'questions' => 'required|array',
-                'difficulty_level' => 'required|in:easy,medium,high',
             ]);
 
             // **2. Simpan Data Quiz ke Firebase**
@@ -65,7 +64,7 @@ class GenerateQuizController extends Controller
                     'question'        => $question['question'],
                     // 'options'         => $question['options'],
                     'correct_answer'  => $question['answer'],
-                    'level_questions' => $request->difficulty_level,
+                    'level_questions' => $question['level'],
                     'feedback'        => $question['feedback'],
                     'score_question'  => $question['point'],
                     'timer'           => $question['time_limit'],
