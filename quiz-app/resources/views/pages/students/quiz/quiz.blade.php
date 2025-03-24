@@ -107,7 +107,6 @@
                         @endif
                     @endforeach
                 </div>
-
                    {{-- Navigasi Soal --}}
             <div class="flex justify-between mt-6">
                 @php
@@ -115,7 +114,6 @@
                     $prevQuestionId = $currentIndex > 0 ? $questionIds[$currentIndex - 1] : null;
                     $nextQuestionId = $currentIndex < count($questionIds) - 1 ? $questionIds[$currentIndex + 1] : null;
                 @endphp
-
             </div>
                 {{-- Tombol Selanjutnya --}}
                 @if ($nextQuestionId && $errors->has('feedback'))

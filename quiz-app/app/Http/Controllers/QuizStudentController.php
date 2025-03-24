@@ -151,6 +151,11 @@ class QuizStudentController extends Controller
             return redirect()->back()->withErrors(['feedback' => $feedback]);
         }
 
+        if (!$nextQuestionId) {
+            return redirect()->route('quiz.completed', ['quizId' => $quizId])
+                ->with('success', 'Quiz telah selesai!');
+        }
+
         // Jika benar, lanjut ke soal berikutnya atau selesai
         if ($nextQuestionId) {
             return redirect()->route('quiz.question', [
@@ -163,8 +168,6 @@ class QuizStudentController extends Controller
                 ->with('success', 'Quiz telah selesai!');
         }
     }
-
-
 
     public function joinQuiz(Request $request)
     {
@@ -247,5 +250,20 @@ class QuizStudentController extends Controller
         ]);
 
     }
+
+    public function quizCompleted($quizId)
+{
+    // Ambil data attempt berdasarkan quiz_id dan urutkan berdasarkan skor tertinggi
+    $attempts = $this->database->getReference('attempt_quizs')
+        ->orderByChild('quiz_id')
+        ->equalTo($quizId)
+        ->getValue();
+
+    // Urutkan leaderboard berdasarkan skor tertinggi
+    $leaderboard = collect($attempts)->sortByDesc('score')->values()->all();
+
+    return view('pages.students.quiz.completed', compact('quizId', 'leaderboard'));
+}
+
 
 }

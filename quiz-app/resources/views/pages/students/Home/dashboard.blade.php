@@ -18,19 +18,24 @@
                 </div>
             </div>
             <div class="grid grid-cols-4 gap-6 mt-[70px]">
-                @for ($i = 0; $i < 5; $i++)
+                @foreach ($quizData as $quiz)
                     <div class="border bg-white shadow rounded-lg text-[12px] text-[#808080] text-center p-[25px]">
-                        <h2 class="text-[18px] text-black font-semibold">Quiz Name</h2>
-                        <p class="m-4">Total Questions:  12</p>
-                        <p>Total Contribution :  </p>
+                        <h2 class="text-[18px] text-black font-semibold">{{ $quiz['nama_quiz'] }}</h2>
+                        <p class="m-4">Total Questions: {{ $quiz['total_questions'] }}</p>
+                        <p>Total Contribution: {{ $quiz['total_contribution'] }}</p>
 
                         <div class="grid grid-cols-2 gap-2">
-                            <button class="bg-[#3D17AE] text-white p-2 text-center cursor-pointer rounded mt-4 w-full flex items-center"><img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Questions</button>
-                            <button class="bg-[#3D17AE] text-white p-2 text-center  cursor-pointer rounded mt-4 w-full flex items-center"><img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Leaderboard</button>
+                            <a href=" " class="bg-[#3D17AE] text-white p-2 text-center cursor-pointer rounded mt-4 w-full flex items-center">
+                                <img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Questions
+                            </a>
+                            <a href=" " class="bg-[#3D17AE] text-white p-2 text-center cursor-pointer rounded mt-4 w-full flex items-center">
+                                <img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Leaderboard
+                            </a>
                         </div>
                     </div>
-                @endfor
+                @endforeach
             </div>
+
         </div>
     </div>
 </x-student-layout>

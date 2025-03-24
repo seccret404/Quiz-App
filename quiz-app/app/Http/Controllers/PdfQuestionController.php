@@ -168,7 +168,6 @@ class PdfQuestionController extends Controller
                 }
             }
 
-
             // 5️⃣ Uji JSON sebelum decode
             json_decode($cleanJson);
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -178,12 +177,10 @@ class PdfQuestionController extends Controller
 
             Log::info('Cleaned JSON after fixing format: ' . $cleanJson);
 
-
             // 6️⃣ Decode JSON ke array PHP
             $questions = json_decode($cleanJson, true);
             // dd(count($questions));
             // Log::info(count($questions));
-
 
             // 7️⃣ Simpan ke session
             session()->flash('questions', $questions);

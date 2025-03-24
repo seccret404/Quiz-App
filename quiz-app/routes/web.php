@@ -44,6 +44,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     //quiz
     Route::post('/quiz-start/{id}', [GenerateQuizController::class, 'quizStart'])->name('quiz.start');
+
 });
 
 Route::middleware(['auth', 'user'])->group(function () {
@@ -55,4 +56,6 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/student/quiz/{quizId}/{questionId}', [QuizStudentController::class, 'quizPage'])->name('quiz.question');
     Route::post('/student/quiz/{quizId}/{questionId}/answer', [QuizStudentController::class, 'submitAnswer'])->name('quiz.answer');
     Route::get('/student/quiz/{quizId}/completed', [QuizStudentController::class, 'completed'])->name('quiz.completed');
+    Route::get('/quiz/{quizId}/completed', [QuizStudentController::class, 'quizCompleted'])->name('quiz.completed');
+
 });
