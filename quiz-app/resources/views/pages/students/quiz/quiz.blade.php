@@ -92,36 +92,62 @@
                 </div>
 
                 @if ($quizType === 'Multiple Choice')
-                    <!-- Tampilan Soal Pilihan Ganda -->
-                    <div class="mt-6 grid grid-cols-2 gap-10">
-                        @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
-                            <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                                  method="POST"
-                                  onsubmit="stopTimer()">
-                                @csrf
-                                <input type="hidden" name="selected_option" value="{{ $optionKey }}">
-                                <button type="submit" class="bg-[#4E73DF] flex items-center text-white w-[300px] p-3">
-                                    <div class="border border-white mr-2 p-4">{{ $optionKey }}</div>
-                                    <div class="p-2">{{ $optionValue }}</div>
-                                </button>
-                            </form>
-                        @endforeach
-                    </div>
-                @elseif ($quizType === 'Essay')
-                    <!-- Tampilan Soal Essay -->
-                    <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                          method="POST"
-                          class="w-full flex flex-col items-center">
-                        @csrf
-                        <textarea name="essay_answer"
-                                  class="w-full p-4 text-black border rounded-md"
-                                  rows="5"
-                                  placeholder="Ketik jawaban Anda di sini..."></textarea>
-                        <button type="submit" class="bg-blue-500 text-white p-3 rounded mt-4">
-                            Submit Jawaban
-                        </button>
-                    </form>
-                @endif
+    <!-- Tampilan Soal Pilihan Ganda -->
+    <div class="mt-6 grid grid-cols-2 gap-10">
+        @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
+            <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                  method="POST"
+                  onsubmit="stopTimer()">
+                @csrf
+                <input type="hidden" name="selected_option" value="{{ $optionKey }}">
+                <button type="submit" class="bg-[#4E73DF] flex items-center text-white w-[300px] p-3">
+                    <div class="border border-white mr-2 p-4">{{ $optionKey }}</div>
+                    <div class="p-2">{{ $optionValue }}</div>
+                </button>
+            </form>
+        @endforeach
+    </div>
+
+        @elseif ($quizType === 'Essay')
+            <!-- Tampilan Soal Essay -->
+            <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                method="POST"
+                class="w-full flex flex-col items-center">
+                @csrf
+                <textarea name="essay_answer"
+                        class="w-full p-4 text-black border rounded-md"
+                        rows="5"
+                        placeholder="Ketik jawaban Anda di sini..."></textarea>
+                <button type="submit" class="bg-blue-500 text-white p-3 rounded mt-4">
+                    Submit Jawaban
+                </button>
+            </form>
+
+        @elseif ($quizType === 'True False')
+            <!-- Tampilan Soal True/False -->
+            <div class="mt-6 flex gap-4">
+                <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                    method="POST"
+                    onsubmit="stopTimer()">
+                    @csrf
+                    <input type="hidden" name="selected_option" value="True">
+                    <button type="submit" class="bg-green-500 text-white w-[150px] p-3 rounded">
+                        True
+                    </button>
+                </form>
+
+                <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                    method="POST"
+                    onsubmit="stopTimer()">
+                    @csrf
+                    <input type="hidden" name="selected_option" value="False">
+                    <button type="submit" class="bg-red-500 text-white w-[150px] p-3 rounded">
+                        False
+                    </button>
+                </form>
+            </div>
+        @endif
+
                    {{-- Navigasi Soal --}}
             <div class="flex justify-between mt-6">
                 @php
