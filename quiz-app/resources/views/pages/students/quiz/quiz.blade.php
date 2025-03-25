@@ -90,10 +90,11 @@
                 <div class="text-white text-center text-[24px] mb-6">
                     {{ $currentQuestion['question'] }}
                 </div>
-                <div class="mt-6 grid grid-cols-2 gap-10">
-                    @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
-                        @if (!$errors->has('feedback'))
-                            <!-- Hanya tampilkan tombol submit jika tidak ada error -->
+
+                @if ($quizType === 'Multiple Choice')
+                    <!-- Tampilan Soal Pilihan Ganda -->
+                    <div class="mt-6 grid grid-cols-2 gap-10">
+                        @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
                             <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
                                   method="POST"
                                   onsubmit="stopTimer()">
@@ -104,9 +105,23 @@
                                     <div class="p-2">{{ $optionValue }}</div>
                                 </button>
                             </form>
-                        @endif
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @elseif ($quizType === 'Essay')
+                    <!-- Tampilan Soal Essay -->
+                    <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                          method="POST"
+                          class="w-full flex flex-col items-center">
+                        @csrf
+                        <textarea name="essay_answer"
+                                  class="w-full p-4 text-black border rounded-md"
+                                  rows="5"
+                                  placeholder="Ketik jawaban Anda di sini..."></textarea>
+                        <button type="submit" class="bg-blue-500 text-white p-3 rounded mt-4">
+                            Submit Jawaban
+                        </button>
+                    </form>
+                @endif
                    {{-- Navigasi Soal --}}
             <div class="flex justify-between mt-6">
                 @php
