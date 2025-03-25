@@ -17,7 +17,7 @@ class PdfQuestionController extends Controller
         return $pdf->getText();
     }
 
-    private function generateQuestions($text, $totalQuestions, $questionType, $difficultyLevel)
+    private function generateQuestions($text, $totalQuestions, $questionType)
     {
         //persipan API GEMINI
 
@@ -26,14 +26,22 @@ class PdfQuestionController extends Controller
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey";
         // $prompt = "Buatkan $totalQuestions soal tipe $questionType berdasarkan teks berikut kedalam format array [] pisahkan soal dengan option nya dan buat feedback(penjelasan) terhadap jawaban yang benar tersebut:\n" . $text;
 
+        $easyCount = floor($totalQuestions * 0.3);
+        $mediumCount = floor($totalQuestions * 0.3);
+        $highCount = $totalQuestions - $easyCount - $mediumCount;
+
         if ($questionType == "Multiple Choice") {
             $prompt = "Buatkan $totalQuestions soal pilihan ganda dengan format JSON yang valid.
-            Setiap soal memiliki pertanyaan, 4 opsi jawaban (A, B, C, D), jawaban yang benar, dan feedback untuk jawaban yang benar.
-            Semua soal yang dihasilkan harus memiliki tingkat kesulitan: $difficultyLevel.
+            Distribusi soal sebagai berikut:
+                - $easyCount soal tingkat easy
+                - $mediumCount soal tingkat medium
+                - $highCount soal tingkat high
 
                 - Jika tingkat kesulitan adalah 'easy', buatlah pertanyaan yang sederhana dan jawaban yang langsung jelas.
                 - Jika tingkat kesulitan adalah 'medium', buatlah pertanyaan yang membutuhkan pemahaman konsep yang lebih dalam.
                 - Jika tingkat kesulitan adalah 'high', buatlah pertanyaan yang menantang dan membutuhkan analisis atau aplikasi konsep yang kompleks.
+
+            Setiap soal memiliki pertanyaan, 4 opsi jawaban (A, B, C, D), jawaban yang benar, level quiz, dan feedback untuk jawaban yang benar.
 
             Gunakan format berikut:
 
@@ -42,6 +50,7 @@ class PdfQuestionController extends Controller
                 \"question\": \"Apa ibukota Indonesia?\",
                 \"options\": { \"A\": \"Jakarta\", \"B\": \"Surabaya\", \"C\": \"Bandung\", \"D\": \"Medan\" },
                 \"answer\": \"A\",
+                \"level\": \"easy\",
                 \"feedback\": \"Jakarta adalah ibukota Indonesia sejak tahun 1945.\"
             },
             ...
@@ -50,13 +59,17 @@ class PdfQuestionController extends Controller
             Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
         } elseif ($questionType == "Essay") {
             $prompt = "Buatkan $totalQuestions pernyataan dengan format JSON yang valid.
-            Setiap pernyataan memiliki informasi singkat, jawaban yang berupa kata atau frasa pendek, dan feedback untuk jawaban yang benar.
-            Pernyataan yang dihasilkan tidak berupa pertanyaan.
-            Semua pernyataan yang dihasilkan harus memiliki tingkat kesulitan: $difficultyLevel.
+            Distribusi soal sebagai berikut:
+                - $easyCount soal tingkat easy
+                - $mediumCount soal tingkat medium
+                - $highCount soal tingkat high
 
                 - Jika tingkat kesulitan adalah 'easy', buatlah pernyataan yang sederhana dengan jawaban yang langsung jelas.
                 - Jika tingkat kesulitan adalah 'medium', buatlah pernyataan yang membutuhkan pemahaman konsep yang lebih mendalam.
                 - Jika tingkat kesulitan adalah 'high', buatlah pernyataan yang menantang dan membutuhkan analisis konsep yang lebih kompleks.
+
+            Setiap pernyataan memiliki informasi singkat, jawaban yang berupa kata atau frasa pendek, dan feedback untuk jawaban yang benar.
+            Pernyataan yang dihasilkan tidak berupa pertanyaan.
 
             Gunakan format berikut:
 
@@ -64,11 +77,13 @@ class PdfQuestionController extends Controller
             {
                 \"question\": \"Penemu lampu pijar.\",
                 \"answer\": \"Thomas Alva Edison.\",
+                \"level\": \"easy\",
                 \"feedback\": \"Thomas Alva Edison menemukan lampu pijar pada tahun 1879.\"
             },
             {
                 \"question\": \"Ibu kota Indonesia.\",
                 \"answer\": \"Jakarta.\",
+                \"level\": \"easy\",
                 \"feedback\": \"Jakarta adalah ibu kota Indonesia sejak tahun 1945.\"
             },
             ...
@@ -77,12 +92,16 @@ class PdfQuestionController extends Controller
             Gunakan teks berikut sebagai referensi untuk membuat soal:\n" . $text;
         } elseif ($questionType == "True False") {
             $prompt = "Buatkan $totalQuestions soal true/false dengan format JSON yang valid.
-            Setiap soal memiliki pertanyaan, jawaban (True atau False), dan feedback mengapa jawaban tersebut benar atau salah.
-            Semua soal yang dihasilkan harus memiliki tingkat kesulitan: $difficultyLevel.
+            Distribusi soal sebagai berikut:
+                - $easyCount soal tingkat easy
+                - $mediumCount soal tingkat medium
+                - $highCount soal tingkat high
 
                 - Jika tingkat kesulitan adalah 'easy', buatlah pertanyaan yang sederhana dan jawaban yang langsung jelas.
                 - Jika tingkat kesulitan adalah 'medium', buatlah pertanyaan yang membutuhkan pemahaman konsep yang lebih dalam.
                 - Jika tingkat kesulitan adalah 'high', buatlah pertanyaan yang menantang dan membutuhkan analisis atau aplikasi konsep yang kompleks.
+
+            Setiap soal memiliki pertanyaan, jawaban (True atau False), dan feedback mengapa jawaban tersebut benar atau salah.
 
             Gunakan format berikut:
 
@@ -90,6 +109,7 @@ class PdfQuestionController extends Controller
             {
                 \"question\": \"Matahari mengelilingi bumi.\",
                 \"answer\": \"False\",
+                \"level\": \"easy\",
                 \"feedback\": \"Matahari tidak mengelilingi bumi. Sebaliknya, bumi yang mengelilingi matahari.\"
             },
             ...
@@ -126,7 +146,6 @@ class PdfQuestionController extends Controller
                 'pdf' => 'required|mimes:pdf|max:2048',
                 'total_questions' => 'required|integer|min:1',
                 'question_type' => 'required|string',
-                'difficulty_level' => 'required|in:easy,medium,high',
             ]);
 
             // Simpan file PDF ke storage
@@ -136,7 +155,7 @@ class PdfQuestionController extends Controller
             $text = $this->extractTextFromPDF(storage_path("app/$pdfPath"));
 
             // Kirim teks ke API Gemini untuk generate soal
-            $response = $this->generateQuestions($text, $request->total_questions, $request->question_type, $request->difficulty_level);
+            $response = $this->generateQuestions($text, $request->total_questions, $request->question_type);
 
             // Ambil raw JSON dari respons Gemini
             $rawJson = data_get($response, 'candidates.0.content.parts.0.text');
@@ -185,7 +204,7 @@ class PdfQuestionController extends Controller
             // 7️⃣ Simpan ke session
             session()->flash('questions', $questions);
             session(['question_type' => request('question_type')]);
-            session(['difficulty_level' => request('difficulty_level')]);
+            // session(['difficulty_level' => request('difficulty_level')]);
 
             return redirect()->route('generate');
         } catch (\Exception $e) {
