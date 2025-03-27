@@ -14,6 +14,18 @@
             <div class="text-white p-6">
                 {{ $questions->currentPage() }} / {{ $questions->lastPage() }}
             </div>
+            @php
+            $progressPercentage = ($questions->currentPage() / $questions->lastPage()) * 100;
+        @endphp
+        <div class="relative w-full bg-gray-200 h-8 rounded-lg overflow-hidden">
+            <div id="progress-bar"
+                class="absolute top-0 left-0 h-8 flex items-center justify-center text-white text-sm font-bold transition-all duration-500"
+                style="width: {{ $progressPercentage }}%;
+                       background-color: {{ $currentQuestion['level_questions'] === 'medium' ? '#FCC21B' : ($currentQuestion['level_questions'] === 'high' ? '#FF5050' : '#137B00') }};">
+                <i class="bi bi-bar-chart mr-2"></i> Level: {{ ucfirst($currentQuestion['level_questions']) }} - {{ round($progressPercentage) }}%
+            </div>
+        </div>
+
         </div>
         <div class="bg-[#2B196681] p-6 h-full">
             <div class="flex justify-between items-center">

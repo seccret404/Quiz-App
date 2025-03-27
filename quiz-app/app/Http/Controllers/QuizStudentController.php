@@ -37,8 +37,6 @@ class QuizStudentController extends Controller
 
         // Ambil hanya satu quiz (karena code_quiz harus unik)
         $quizData = reset($quizRef);
-
-        // Ambil type dari quiz
         $quizType = $quizData['type_quiz'] ?? 'Multiple Choice'; // Default ke pilihan ganda
 
         // Ambil semua soal berdasarkan `code_quiz`
@@ -51,15 +49,28 @@ class QuizStudentController extends Controller
             return redirect()->route('dashboard')->with('error', 'Soal tidak ditemukan.');
         }
 
-        // Urutkan soal berdasarkan key Firebase
+        // Ubah menjadi array numerik
         $questions = array_values($questionsRef);
         $questionIds = array_keys($questionsRef);
+
+        // Validasi level_questions hanya menerima 'easy', 'medium', atau 'high'
+        $validLevels = ['easy', 'medium', 'high'];
+
+        // Urutkan soal berdasarkan tingkat kesulitan
+        usort($questions, function ($a, $b) use ($validLevels) {
+            $order = ['easy' => 1, 'medium' => 2, 'high' => 3];
+
+            $difficultyA = in_array($a['level_questions'] ?? 'medium', $validLevels) ? $a['level_questions'] : 'medium';
+            $difficultyB = in_array($b['level_questions'] ?? 'medium', $validLevels) ? $b['level_questions'] : 'medium';
+
+            return $order[$difficultyA] <=> $order[$difficultyB];
+        });
 
         // Pastikan `questionId` ada, jika tidak, ambil soal pertama
         if (!$questionId || !in_array($questionId, $questionIds)) {
             return redirect()->route('quiz.question', [
                 'quizId' => $quizId,
-                'questionId' => reset($questionIds), // Soal pertama
+                'questionId' => array_keys($questionsRef)[0], // Soal pertama setelah diurutkan
                 'code_quiz' => $codeQuiz
             ]);
         }
@@ -92,23 +103,21 @@ class QuizStudentController extends Controller
 
     public function submitAnswer(Request $request, $quizId, $questionId)
     {
-        $userId = session('user_id'); // ID user
-        $selectedAnswer = $request->input('selected_option'); // Jawaban multiple-choice & True/False
-        $essayAnswer = $request->input('essay_answer'); // Jawaban essay
+        $userId = session('user_id');
+        $selectedAnswer = $request->input('selected_option');
+        $essayAnswer = $request->input('essay_answer');
         $isCorrect = false;
         $feedback = null;
         $scoreToAdd = 0;
 
-        // Ambil data quiz dan soal
         $quizRef = $this->database->getReference("quizs/{$quizId}")->getValue();
         if (!$quizRef) return redirect()->route('dashboard')->with('error', 'Quiz tidak ditemukan.');
 
-        $quizType = $quizRef['type'] ?? 'multiple-choice';
+        $quizType = $quizRef['type'] ?? 'Multiple Choice';
         $questionRef = $this->database->getReference("questions/{$questionId}")->getValue();
         if (!$questionRef) return redirect()->route('dashboard')->with('error', 'Soal tidak ditemukan.');
 
-        // Jika tipe soal adalah MULTIPLE-CHOICE atau TRUE/FALSE
-        if ($quizType === 'multiple-choice' || $quizType === 'True/False') {
+        if ($quizType === 'Multiple Choice' || $quizType === 'True False') {
             $correctAnswer = $questionRef['correct_answer'] ?? null;
             $scoreToAdd = $questionRef['score_question'] ?? 0;
 
@@ -127,10 +136,19 @@ class QuizStudentController extends Controller
             ];
         }
 
-        // Jika tipe quiz adalah ESSAY
-        elseif ($quizType === 'essay') {
+        elseif ($quizType === 'Essay') {
             if (!$essayAnswer) {
                 return redirect()->back()->withErrors(['feedback' => 'Jawaban tidak boleh kosong.']);
+            }
+
+            $correctEssayAnswer = $questionRef['correct_answer'] ?? null;
+            $feedback = $questionRef['feedback'] ?? 'Jawaban telah disimpan untuk dinilai secara manual.';
+
+            if ($correctEssayAnswer) {
+                similar_text(strtolower(trim($essayAnswer)), strtolower(trim($correctEssayAnswer)), $similarity);
+                $isCorrect = $similarity >= 70;
+            } else {
+                $isCorrect = null;
             }
 
             $answerData = [
@@ -138,15 +156,15 @@ class QuizStudentController extends Controller
                 'id_quiz' => $quizId,
                 'id_question' => $questionId,
                 'essay_answer' => $essayAnswer,
-                'is_correct' => null
+                'is_correct' => $isCorrect
             ];
         }
 
-        // Simpan jawaban ke database
+        // Simpan jawaban ke database, baik benar maupun salah
         $this->database->getReference('answers')->push($answerData);
 
-        // Update skor jika jawabannya benar
-        if (($quizType === 'multiple-choice' || $quizType === 'True/False') && $isCorrect) {
+        // Update skor jika jawaban benar
+        if (($quizType === 'Multiple Choice' || $quizType === 'True False') && $isCorrect) {
             $attemptsRef = $this->database->getReference("attempt_quizs")->getValue();
             $attemptId = null;
 
@@ -182,9 +200,15 @@ class QuizStudentController extends Controller
             ? $questionKeys[$currentIndex + 1]
             : null;
 
+        // **PERBAIKAN UTAMA DI SINI**
         if (!$nextQuestionId) {
             return redirect()->route('quiz.completed', ['quizId' => $quizId])
                 ->with('success', 'Quiz telah selesai!');
+        }
+
+        // **PERBAIKAN LAINNYA: CEGAH REDIRECT BACK PADA SOAL TERAKHIR JIKA JAWABAN SALAH**
+        if (!$isCorrect && $nextQuestionId) {
+            return redirect()->back()->withErrors(['feedback' => $feedback])->with('next', true);
         }
 
         return redirect()->route('quiz.question', [
@@ -193,6 +217,7 @@ class QuizStudentController extends Controller
             'code_quiz' => $questionRef['code_quiz']
         ]);
     }
+
 
 
     public function joinQuiz(Request $request)
