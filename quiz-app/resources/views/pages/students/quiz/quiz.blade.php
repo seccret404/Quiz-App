@@ -3,191 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Quiz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .fade-out {
+            animation: fadeOut 3s ease forwards;
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; }
+        }
+        .selected-wrong {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+        }
+        .correct-answer {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+        }
+    </style>
 </head>
-<body>
-    <div class="h-screen">
-        <div class="bg-[#2B1966]">
-            <div class="text-white p-6">
-                {{ $questions->currentPage() }} / {{ $questions->lastPage() }}
-            </div>
-            @php
-            $progressPercentage = ($questions->currentPage() / $questions->lastPage()) * 100;
-        @endphp
-        <div class="relative w-full bg-gray-200 h-8 rounded-lg overflow-hidden">
-            <div id="progress-bar"
-                class="absolute top-0 left-0 h-8 flex items-center justify-center text-white text-sm font-bold transition-all duration-500"
-                style="width: {{ $progressPercentage }}%;
-                       background-color: {{ $currentQuestion['level_questions'] === 'medium' ? '#FCC21B' : ($currentQuestion['level_questions'] === 'high' ? '#FF5050' : '#137B00') }};">
-                <i class="bi bi-bar-chart mr-2"></i> Level: {{ ucfirst($currentQuestion['level_questions']) }} - {{ round($progressPercentage) }}%
-            </div>
-        </div>
-
-        </div>
-        <div class="bg-[#2B196681] p-6 h-full">
-            <div class="flex justify-between items-center">
-                <div class="flex">
-                    <div class="flex items-center justify-center text-white bg-[#FCC21B] rounded-[5px] p-4 w-[123px] mr-2">
-                        {{ $currentQuestion['score_question'] }}.0
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header Section -->
+        <header class="bg-[#2B1966] shadow-md">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="text-white text-lg font-semibold">
+                        Quiz App
                     </div>
-                    <div class="w-[123px] flex items-center justify-center text-white rounded-[5px] p-4"
-                         style="background-color: {{ $currentQuestion['level_questions'] === 'medium' ? '#FCC21B' : ($currentQuestion['level_questions'] === 'high' ? 'red' : '#137B00') }};">
-                        <i class="bi bi-bar-chart"></i>
-                        {{ $currentQuestion['level_questions'] }}
+                    <div class="text-white">
+                        {{ $questions->currentPage() }} / {{ $questions->lastPage() }}
                     </div>
                 </div>
-                <div class="relative w-[120px] h-[120px] flex items-center justify-center">
-                    <svg class="absolute w-full h-full" viewBox="0 0 100 100">
-                        <circle class="text-gray-700" stroke-width="5" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
-                        <circle id="progress" class="text-red-500 transition-all duration-1000" stroke-width="5" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" stroke-dasharray="282" stroke-dashoffset="282" stroke-linecap="round" transform="rotate(-90 50 50)" />
-                    </svg>
-                    <div class="border border-[5px] p-1 border-[#FF5050] rounded-[60px]">
-                        <div class="flex flex-col bg-[#FF5050] text-center text-white font-bold rounded-[50px] p-5 w-[95px] h-[95px]">
-                            <div>Timer</div>
-                            <div id="countdown">{{ $currentQuestion['timer'] }}</div>
+
+                <!-- Progress Bar -->
+                @php
+                    $progressPercentage = ($questions->currentPage() / $questions->lastPage()) * 100;
+                    $progressColor = match($currentQuestion['level_questions']) {
+                        'medium' => '#FCC21B',
+                        'high' => '#FF5050',
+                        default => '#137B00'
+                    };
+                @endphp
+                <div class="mt-4 w-full bg-gray-200 rounded-full h-4">
+                    <div class="h-4 rounded-full flex items-center justify-center text-white text-xs font-bold transition-all duration-500"
+                         style="width: {{ $progressPercentage }}%; background-color: {{ $progressColor }};">
+                        <span class="hidden sm:inline">Level: {{ ucfirst($currentQuestion['level_questions']) }} - {{ round($progressPercentage) }}%</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-6">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <!-- Question Header -->
+                <div class="bg-[#2B1966] p-4 text-white flex justify-between items-center">
+                    <div class="flex space-x-2">
+                        <div class="bg-[#FCC21B] rounded px-3 py-1 flex items-center">
+                            <span>{{ $currentQuestion['score_question'] }}.0 Poin</span>
+                        </div>
+                        <div class="rounded px-3 py-1 flex items-center"
+                             style="background-color: {{ $progressColor }};">
+                            <i class="bi bi-bar-chart mr-1"></i>
+                            <span>{{ ucfirst($currentQuestion['level_questions']) }}</span>
                         </div>
                     </div>
-                </div>
-            </div>
 
-
-
-            <script>
-                let countdown = parseInt(document.getElementById("countdown").textContent);
-                let progressCircle = document.getElementById("progress");
-                let countdownText = document.getElementById("countdown");
-                let totalDashArray = 282;
-                let initialCountdown = countdown;
-                let interval;
-
-                // Cek apakah ada feedback error
-                let hasFeedbackError = "{{ $errors->has('feedback') ? 'true' : 'false' }}" === 'true';
-
-                function startTimer() {
-                    if (hasFeedbackError) {
-                        // Jika jawaban salah, hentikan timer dan sembunyikan submit
-                        countdownText.textContent = "X";
-                        progressCircle.style.strokeDashoffset = totalDashArray;
-                        return;
-                    }
-
-                    interval = setInterval(() => {
-                        if (countdown > 0) {
-                            countdownText.textContent = countdown;
-                            countdown--;
-                            let progress = (countdown / initialCountdown) * totalDashArray;
-                            progressCircle.style.strokeDashoffset = progress;
-                        } else {
-                            clearInterval(interval);
-                            document.getElementById('next-question').submit();
-                        }
-                    }, 1000);
-                }
-
-                function stopTimer() {
-                    clearInterval(interval);
-                    progressCircle.style.animation = "none"; // Hentikan animasi stroke
-                }
-
-                // Jalankan timer hanya jika tidak ada feedback error
-                if (!hasFeedbackError) {
-                    startTimer();
-                }
-            </script>
-
-            <div class="pl-[100px] pr-[100px] pt-[40px] flex flex-col items-center justify-center">
-                <div class="text-white text-center text-[24px] mb-6">
-                    {{ $currentQuestion['question'] }}
+                    <!-- Timer -->
+                    <div class="flex items-center">
+                        <div class="relative w-12 h-12 mr-2">
+                            <svg class="w-full h-full" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" r="16" fill="none" class="stroke-gray-300" stroke-width="2"></circle>
+                                <circle id="progress-ring" cx="18" cy="18" r="16" fill="none"
+                                        class="stroke-red-500" stroke-width="2"
+                                        stroke-dasharray="100"
+                                        stroke-dashoffset="100"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-white font-bold text-sm">
+                                <span id="countdown">{{ $currentQuestion['timer'] }}</span>
+                            </div>
+                        </div>
+                        <span class="text-sm">Detik</span>
+                    </div>
                 </div>
 
-                @if ($quizType === 'Multiple Choice')
-    <!-- Tampilan Soal Pilihan Ganda -->
-    <div class="mt-6 grid grid-cols-2 gap-10">
-        @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
-            <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                  method="POST"
-                  onsubmit="stopTimer()">
-                @csrf
-                <input type="hidden" name="selected_option" value="{{ $optionKey }}">
-                <button type="submit" class="bg-[#4E73DF] flex items-center text-white w-[300px] p-3">
-                    <div class="border border-white mr-2 p-4">{{ $optionKey }}</div>
-                    <div class="p-2">{{ $optionValue }}</div>
-                </button>
-            </form>
-        @endforeach
-    </div>
+                <!-- Question Content -->
+                <div class="p-6">
+                    <div class="text-gray-800 text-xl font-medium mb-8">
+                        {{ $currentQuestion['question'] }}
+                    </div>
 
-        @elseif ($quizType === 'Essay')
-            <!-- Tampilan Soal Essay -->
-            <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                method="POST"
-                class="w-full flex flex-col items-center">
-                @csrf
-                <textarea name="essay_answer"
-                        class="w-full p-4 text-black border rounded-md"
-                        rows="5"
-                        placeholder="Ketik jawaban Anda di sini..."></textarea>
-                <button type="submit" class="bg-blue-500 text-white p-3 rounded mt-4">
-                    Submit Jawaban
-                </button>
-            </form>
+                    <!-- Answer Options -->
+                    @if ($quizType === 'Multiple Choice')
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
+                                <form method="POST"
+                                      action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                                      onsubmit="stopTimer()">
+                                    @csrf
+                                    <input type="hidden" name="selected_option" value="{{ $optionKey }}">
+                                    <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
+                                    <button type="submit"
+                                            class="w-full p-4 border rounded-lg transition-all flex items-start
+                                                  @if(request('selected') == $optionKey && request('show_feedback')) selected-wrong
+                                                  @elseif($optionKey == $currentQuestion['correct_answer'] && request('show_feedback')) correct-answer
+                                                  @else hover:bg-blue-50 @endif">
+                                        <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                                            {{ $optionKey }}
+                                        </div>
+                                        <div class="text-left">
+                                            {{ $optionValue }}
+                                            @if($optionKey == $currentQuestion['correct_answer'] && request('show_feedback'))
+                                                <span class="ml-2 text-green-600 text-sm">✓ Jawaban benar</span>
+                                            @endif
+                                        </div>
+                                    </button>
+                                </form>
+                            @endforeach
+                        </div>
+                    @elseif ($quizType === 'Essay')
+                        <form method="POST"
+                              action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                              class="space-y-4">
+                            @csrf
+                            <textarea name="essay_answer" rows="5"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="Tulis jawaban Anda disini..."></textarea>
+                            <button type="submit"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                Submit Jawaban
+                            </button>
+                        </form>
+                    @elseif ($quizType === 'True False')
+                        <div class="flex space-x-4 justify-center">
+                            <form method="POST"
+                                  action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                                  onsubmit="stopTimer()">
+                                @csrf
+                                <input type="hidden" name="selected_option" value="True">
+                                <button type="submit"
+                                        class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg transition-colors">
+                                    Benar
+                                </button>
+                            </form>
+                            <form method="POST"
+                                  action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                                  onsubmit="stopTimer()">
+                                @csrf
+                                <input type="hidden" name="selected_option" value="False">
+                                <button type="submit"
+                                        class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg transition-colors">
+                                    Salah
+                                </button>
+                            </form>
+                        </div>
+                    @endif
 
-        @elseif ($quizType === 'True False')
-            <!-- Tampilan Soal True/False -->
-            <div class="mt-6 flex gap-4">
-                <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                    method="POST"
-                    onsubmit="stopTimer()">
-                    @csrf
-                    <input type="hidden" name="selected_option" value="True">
-                    <button type="submit" class="bg-green-500 text-white w-[150px] p-3 rounded">
-                        True
-                    </button>
-                </form>
+                    <!-- Feedback Section -->
+                    @if(request('show_feedback'))
+                        <div id="feedback-container" class="border-t border-gray-200 p-6 bg-amber-50 @if(request('is_final')) fade-out @endif">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 text-amber-500 pt-1">
+                                    <i class="bi bi-exclamation-triangle-fill text-xl"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-amber-800 font-bold mb-2">Pembahasan:</h3>
+                                    <p class="text-amber-700">
+                                        {{ $currentQuestion['feedback'] ?? 'Jawaban Anda belum tepat.' }}
+                                    </p>
 
-                <form action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                    method="POST"
-                    onsubmit="stopTimer()">
-                    @csrf
-                    <input type="hidden" name="selected_option" value="False">
-                    <button type="submit" class="bg-red-500 text-white w-[150px] p-3 rounded">
-                        False
-                    </button>
-                </form>
+                                    <div class="mt-2">
+                                        <span class="font-medium">Jawaban benar:</span>
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
+                                            {{ $currentQuestion['correct_answer'] }} -
+                                            {{ $currentQuestion['options'][$currentQuestion['correct_answer']] }}
+                                        </span>
+                                    </div>
+
+                                    @if(request('is_final'))
+                                        <div class="mt-3 text-sm text-amber-600 flex items-center">
+                                            <i class="bi bi-hourglass-split animate-spin mr-2"></i>
+                                            Mengarahkan ke halaman hasil dalam 3 detik...
+                                        </div>
+                                        <script>
+                                            setTimeout(function() {
+                                                window.location.href = "{{ route('quiz.completed', ['quizId' => $quizId]) }}";
+                                            }, 3000);
+                                        </script>
+                                    @else
+                                        @php
+                                            $currentIndex = array_search($currentQuestionId, $questionIds);
+                                            $nextQuestionId = ($currentIndex !== false && isset($questionIds[$currentIndex + 1]))
+                                                            ? $questionIds[$currentIndex + 1]
+                                                            : null;
+                                        @endphp
+
+                                        @if($nextQuestionId)
+                                            <div class="mt-4">
+                                                <a href="{{ route('quiz.question', [
+                                                    'quizId' => $quizId,
+                                                    'questionId' => $nextQuestionId,
+                                                    'code_quiz' => request()->query('code_quiz')
+                                                ]) }}"
+                                                class="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
+                                                    Lanjut ke Soal Berikutnya
+                                                    <i class="bi bi-arrow-right ml-2"></i>
+                                                </a>
+                                            </div>
+                                        @endif
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
-        @endif
+        </main>
 
-                   {{-- Navigasi Soal --}}
-            <div class="flex justify-between mt-6">
+        <!-- Footer Navigation -->
+        <footer class="bg-white border-t border-gray-200 py-4">
+            <div class="container mx-auto px-4 flex justify-between">
                 @php
                     $currentIndex = array_search($currentQuestionId, $questionIds);
-                    $prevQuestionId = $currentIndex > 0 ? $questionIds[$currentIndex - 1] : null;
-                    $nextQuestionId = $currentIndex < count($questionIds) - 1 ? $questionIds[$currentIndex + 1] : null;
+                    $prevQuestionId = ($currentIndex > 0) ? $questionIds[$currentIndex - 1] : null;
                 @endphp
-            </div>
-                {{-- Tombol Selanjutnya --}}
-                @if ($nextQuestionId && $errors->has('feedback'))
-                <div class="p-6 textc-center border rounded">
-                    {{ $errors->first('feedback') }}
-                </div>
-                <a href="{{ route('quiz.question', ['quizId' => $quizId, 'questionId' => $nextQuestionId ?? $currentQuestionId, 'code_quiz' => request()->query('code_quiz')]) }}"
-                class="bg-blue-500 text-white p-3 rounded mt-2">
-                    Next →
-                </a>
+
+                @if ($prevQuestionId)
+                    <a href="{{ route('quiz.question', [
+                        'quizId' => $quizId,
+                        'questionId' => $prevQuestionId,
+                        'code_quiz' => request()->query('code_quiz')
+                    ])}}"
+                    class="text-blue-500 hover:text-blue-700 flex items-center">
+                        <i class="bi bi-arrow-left mr-2"></i> Soal Sebelumnya
+                    </a>
+                @else
+                    <div></div>
                 @endif
+
+                <div class="text-gray-500 text-sm">
+                    Sisa Waktu: <span id="footer-countdown">{{ $currentQuestion['timer'] }}</span> detik
+                </div>
             </div>
-
-
-            <!-- Form untuk auto-submit saat waktu habis -->
-            <form id="next-question" method="POST" action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}">
-                @csrf
-                <input type="hidden" name="selected_option" value="">
-            </form>
-
-        </div>
+        </footer>
     </div>
+
+    <!-- Timer Script -->
+    <script>
+        let countdown = parseInt(document.getElementById("countdown").textContent);
+        let initialCountdown = countdown;
+        let progressRing = document.getElementById("progress-ring");
+        let interval;
+        let hasFeedback = {{ request('show_feedback') ? 'true' : 'false' }};
+
+        function updateTimer() {
+            if (countdown > 0) {
+                countdown--;
+                document.getElementById("countdown").textContent = countdown;
+                document.getElementById("footer-countdown").textContent = countdown;
+
+                const offset = 100 - (countdown / initialCountdown * 100);
+                progressRing.style.strokeDashoffset = offset;
+
+                if (countdown <= 5) {
+                    progressRing.classList.remove('stroke-red-500');
+                    progressRing.classList.add('stroke-red-700');
+                }
+            } else {
+                clearInterval(interval);
+                document.getElementById('auto-submit-form').submit();
+            }
+        }
+
+        function stopTimer() {
+            clearInterval(interval);
+        }
+
+        if (!hasFeedback) {
+            interval = setInterval(updateTimer, 1000);
+        }
+    </script>
+
+    <!-- Auto-Submit Form for Timeout -->
+    <form id="auto-submit-form" method="POST" action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}">
+        @csrf
+        <input type="hidden" name="selected_option" value="">
+    </form>
 </body>
 </html>
