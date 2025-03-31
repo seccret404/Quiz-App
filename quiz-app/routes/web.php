@@ -53,7 +53,12 @@ Route::middleware(['auth', 'user'])->group(function () {
 
     //quiz
     Route::post('/quiz/join', [QuizStudentController::class, 'joinQuiz'])->name('quiz.join');
-    Route::get('/student/quiz/{quizId}/{questionId}', [QuizStudentController::class, 'quizPage'])->name('quiz.question');
+  // routes/web.php
+Route::get('/student/quiz/{quizId}', [QuizStudentController::class, 'redirectToFirstQuestion'])
+->name('quiz.start');
+
+Route::get('/student/quiz/{quizId}/{questionId}', [QuizStudentController::class, 'quizPage'])
+->name('quiz.question');
     Route::post('/student/quiz/{quizId}/{questionId}/answer', [QuizStudentController::class, 'submitAnswer'])->name('quiz.answer');
     Route::get('/student/quiz/{quizId}/completed', [QuizStudentController::class, 'completed'])->name('quiz.completed');
     Route::get('/quiz/{quizId}/completed', [QuizStudentController::class, 'quizCompleted'])->name('quiz.completed');

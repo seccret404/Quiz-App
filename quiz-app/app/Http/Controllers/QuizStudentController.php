@@ -26,9 +26,9 @@ class QuizStudentController extends Controller
 
         // Ambil data quiz
         $quizRef = $this->database->getReference("quizs")
-                            ->orderByChild("code_quiz")
-                            ->equalTo($codeQuiz)
-                            ->getValue();
+                        ->orderByChild("code_quiz")
+                        ->equalTo($codeQuiz)
+                        ->getValue();
 
         if (!$quizRef) {
             return redirect()->route('dashboard')->with('error', 'Quiz tidak ditemukan.');
@@ -47,9 +47,9 @@ class QuizStudentController extends Controller
             return redirect()->route('dashboard')->with('error', 'Soal tidak ditemukan.');
         }
 
-        // Urutkan soal: easy -> medium -> high
-        $sortedQuestions = [];
+        // Urutkan soal berdasarkan tingkat kesulitan
         $levels = ['easy', 'medium', 'high'];
+        $sortedQuestions = [];
 
         foreach ($levels as $level) {
             foreach ($questionsRef as $id => $question) {
@@ -59,9 +59,18 @@ class QuizStudentController extends Controller
             }
         }
 
-        // Jika tidak ada questionId atau tidak valid, redirect ke soal pertama
+        // Jika tidak ada soal yang tersedia
+        if (empty($sortedQuestions)) {
+            return redirect()->route('dashboard')->with('error', 'Tidak ada soal yang tersedia.');
+        }
+
+        // Jika questionId tidak valid
         if (!$questionId || !array_key_exists($questionId, $sortedQuestions)) {
             $firstQuestionId = array_key_first($sortedQuestions);
+            if (!$firstQuestionId) {
+                return redirect()->route('dashboard')->with('error', 'Gagal memuat soal.');
+            }
+
             return redirect()->route('quiz.question', [
                 'quizId' => $quizId,
                 'questionId' => $firstQuestionId,
@@ -69,12 +78,11 @@ class QuizStudentController extends Controller
             ]);
         }
 
-        // Cari index dari soal saat ini
+        // Persiapan data untuk view
         $questionIds = array_keys($sortedQuestions);
         $currentIndex = array_search($questionId, $questionIds);
         $currentQuestion = $sortedQuestions[$questionId];
 
-        // Pagination
         $paginator = new LengthAwarePaginator(
             [$currentQuestion],
             count($sortedQuestions),
@@ -93,6 +101,7 @@ class QuizStudentController extends Controller
             'currentQuestionId' => $questionId,
             'questionIds' => $questionIds,
             'quizType' => $quizType,
+            'sortedQuestions' => $sortedQuestions // Tambahkan sortedQuestions ke view
         ]);
     }
 
@@ -155,7 +164,25 @@ class QuizStudentController extends Controller
         $this->saveAnswerAttempt($userId, $quizId, $questionId, $selectedAnswer, $isCorrect);
 
         // 6. Determine Next Step
-        $nextQuestionId = $this->getNextQuestionId($questionRef['code_quiz'], $questionId);
+        // Ambil semua soal untuk mendapatkan urutan yang benar
+        $questionsRef = $this->database->getReference("questions")
+                                ->orderByChild("code_quiz")
+                                ->equalTo($quizRef['code_quiz'])
+                                ->getValue();
+
+        // Urutkan soal berdasarkan tingkat kesulitan
+        $levels = ['easy', 'medium', 'high'];
+        $sortedQuestions = [];
+
+        foreach ($levels as $level) {
+            foreach ($questionsRef as $id => $question) {
+                if (($question['level_questions'] ?? 'medium') === $level) {
+                    $sortedQuestions[$id] = $question;
+                }
+            }
+        }
+
+        $nextQuestionId = $this->getNextQuestionId($questionRef['code_quiz'], $questionId, $sortedQuestions);
 
         if ($isCorrect) {
             return $nextQuestionId
@@ -176,7 +203,6 @@ class QuizStudentController extends Controller
             return $this->handleWrongAnswer($quizId, $questionId, $questionRef['code_quiz'], $feedbackData);
         }
     }
-
 
     // Helper Methods
 
@@ -242,104 +268,120 @@ class QuizStudentController extends Controller
             }
         }
     }
-
-    private function getNextQuestionId($codeQuiz, $currentQuestionId)
+    private function getNextQuestionId($codeQuiz, $currentQuestionId, $sortedQuestions)
     {
-        $questions = $this->database->getReference("questions")
-            ->orderByChild("code_quiz")
-            ->equalTo($codeQuiz)
-            ->getValue();
-
-        if (!$questions) return null;
-
-        $questionIds = array_keys($questions);
+        $questionIds = array_keys($sortedQuestions);
         $currentIndex = array_search($currentQuestionId, $questionIds);
 
+        // Ambil soal berikutnya berdasarkan urutan yang sudah di-sort
         return $questionIds[$currentIndex + 1] ?? null;
     }
 
-
     public function joinQuiz(Request $request)
-    {
-        $request->validate([
-            'code_quiz' => 'required|string'
-        ]);
+{
+    $request->validate([
+        'code_quiz' => 'required|string'
+    ]);
 
-        $quizCode = $request->code_quiz;
+    $quizCode = $request->code_quiz;
+    $userId = session('user_id');
 
-        // find quiz -> code_quiz
-        $quizRef = $this->database->getReference('quizs')
-                                ->orderByChild('code_quiz')
-                                ->equalTo($quizCode)
-                                ->getValue();
+    // Validasi session user
+    if (!$userId) {
+        return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+    }
 
-        // if err
-        if (empty($quizRef)) {
-            return redirect()->back()->with('error', 'Quiz tidak ditemukan.');
-        }
+    // Cari quiz berdasarkan kode
+    $quizRef = $this->database->getReference('quizs')
+                    ->orderByChild('code_quiz')
+                    ->equalTo($quizCode)
+                    ->getValue();
 
-        // if not err, take quiz_id
-        $quizId = array_key_first($quizRef);
-        $quiz = $quizRef[$quizId];
+    if (empty($quizRef)) {
+        return redirect()->back()
+               ->withInput()
+               ->with('error', 'Kode quiz tidak valid atau tidak ditemukan.');
+    }
 
-        //cek duplicate
-        if (!isset($quiz['status']) || $quiz['status'] !== 'Ongoing') {
-            return redirect()->back()->with('error', 'Quiz belum dimulai.');
-        }
+    $quizId = array_key_first($quizRef);
+    $quiz = $quizRef[$quizId];
 
-        $userId = session('user_id'); //take id student
+    // Validasi status quiz
+    if (!isset($quiz['status']) || $quiz['status'] !== 'Ongoing') {
+        return redirect()->back()
+               ->withInput()
+               ->with('error', 'Quiz belum dimulai atau sudah selesai.');
+    }
 
-        // Check duplicate id student
-        $attemptRef = $this->database->getReference('attempt_quizs')
+    // Cek attempt sebelumnya
+    $attemptRef = $this->database->getReference('attempt_quizs')
                     ->orderByChild('user_id')
                     ->equalTo($userId)
                     ->getValue();
 
-
-        $existingAttempt = null;
-        if (!empty($attemptRef)) {
-            foreach ($attemptRef as $key => $attempt) {
-                if (isset($attempt['quiz_id']) && $attempt['quiz_id'] == $quizId) {
-                    $existingAttempt = $key;
-                    break;
-                }
+    $existingAttempt = null;
+    if (!empty($attemptRef)) {
+        foreach ($attemptRef as $key => $attempt) {
+            if (isset($attempt['quiz_id']) && $attempt['quiz_id'] == $quizId) {
+                $existingAttempt = $key;
+                break;
             }
         }
-
-        // push if not duplicate
-        if (!$existingAttempt) {
-            $newAttemptRef = $this->database->getReference('attempt_quizs')->push([
-                'user_id' => $userId,
-                'quiz_id' => $quizId,
-                'start_time' => now()->toDateTimeString(),
-                'status' => 'in_progress',
-                'score' => 0
-            ]);
-            // dd($newAttemptRef);
-            $attemptId = $newAttemptRef->getKey();
-        } else {
-            $attemptId = $existingAttempt;
-        }
-
-        // Ambil soal pertama
-        $questionsRef = $this->database->getReference("questions")
-                            ->orderByChild("code_quiz")
-                            ->equalTo($quizCode)
-                            ->getValue();
-
-        if (empty($questionsRef)) {
-            return redirect()->back()->with('error', 'Tidak ada soal dalam quiz ini.');
-        }
-
-        $firstQuestionId = array_key_first($questionsRef);
-
-        return redirect()->route('quiz.question', [
-            'quizId' => $quizId,
-            'questionId' => $firstQuestionId,
-            'code_quiz' => $quizCode
-        ]);
-
     }
+
+    // Buat attempt baru jika belum ada
+    if (!$existingAttempt) {
+        $newAttemptRef = $this->database->getReference('attempt_quizs')->push([
+            'user_id' => $userId,
+            'quiz_id' => $quizId,
+            'start_time' => now()->toDateTimeString(),
+            'status' => 'in_progress',
+            'score' => 0
+        ]);
+        $attemptId = $newAttemptRef->getKey();
+    } else {
+        $attemptId = $existingAttempt;
+    }
+
+    // Ambil semua soal
+    $questionsRef = $this->database->getReference("questions")
+                        ->orderByChild("code_quiz")
+                        ->equalTo($quizCode)
+                        ->getValue();
+
+    if (empty($questionsRef)) {
+        return redirect()->back()
+               ->withInput()
+               ->with('error', 'Belum ada soal yang tersedia untuk quiz ini.');
+    }
+
+    // Urutkan soal berdasarkan tingkat kesulitan
+    $levels = ['easy', 'medium', 'high'];
+    $sortedQuestions = [];
+
+    foreach ($levels as $level) {
+        foreach ($questionsRef as $id => $question) {
+            if (($question['level_questions'] ?? 'medium') === $level) {
+                $sortedQuestions[$id] = $question;
+            }
+        }
+    }
+
+    $firstQuestionId = array_key_first($sortedQuestions);
+
+    if (!$firstQuestionId) {
+        return redirect()->back()
+               ->withInput()
+               ->with('error', 'Gagal memuat soal pertama.');
+    }
+
+    return redirect()->route('quiz.question', [
+        'quizId' => $quizId,
+        'questionId' => $firstQuestionId,
+        'code_quiz' => $quizCode
+    ])->with('success', 'Berhasil masuk ke quiz!');
+}
+
 
     public function quizCompleted($quizId)
 {
