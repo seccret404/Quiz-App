@@ -43,7 +43,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
     //quiz
-    Route::post('/quiz-start/{id}', [GenerateQuizController::class, 'quizStart'])->name('quiz.start');
+    Route::post('/student/quiz/{id}', [GenerateQuizController::class, 'quizStart'])->name('quiz.start');
+
 
 });
 

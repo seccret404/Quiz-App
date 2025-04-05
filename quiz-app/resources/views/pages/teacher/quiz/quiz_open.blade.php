@@ -24,7 +24,7 @@
                             </button>
                         </div>
                     </div>
-                    <form action="{{ route('quiz.start', ['id' => $quiz['id']]) }}" method="POST">
+                    <form action="{{ route('quiz.start', ['quizId' => $quiz['id']]) }}" method="POST">
                         @csrf
                         <button class="bg-[#4E73DF] text-white px-4 py-2 cursor-pointer rounded mt-4 w-full">Start Quiz</button>
                     </form>

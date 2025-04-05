@@ -42,6 +42,7 @@ class PdfQuestionController extends Controller
                 - Jika tingkat kesulitan adalah 'high', buatlah pertanyaan yang menantang dan membutuhkan analisis atau aplikasi konsep yang kompleks.
 
             Setiap soal memiliki pertanyaan, 4 opsi jawaban (A, B, C, D), jawaban yang benar, level quiz, dan feedback untuk jawaban yang benar.
+            Soal di generate menggunakan bahasa pdf nya, jika pdf bahasa inggris maka soal bahasa inggris. Demikian dengan pdf bahasa yang lain.
 
             Gunakan format berikut:
 
@@ -64,27 +65,40 @@ class PdfQuestionController extends Controller
                 - $mediumCount soal tingkat medium
                 - $highCount soal tingkat high
 
-                - Jika tingkat kesulitan adalah 'easy', buatlah pernyataan yang sederhana dengan jawaban yang langsung jelas.
-                - Jika tingkat kesulitan adalah 'medium', buatlah pernyataan yang membutuhkan pemahaman konsep yang lebih mendalam.
-                - Jika tingkat kesulitan adalah 'high', buatlah pernyataan yang menantang dan membutuhkan analisis konsep yang lebih kompleks.
+                - Jika tingkat kesulitan adalah 'easy', buatlah pernyataan yang sederhana dengan jawaban berupa istilah tunggal/singkat.
+                - Jika tingkat kesulitan adalah 'medium', buatlah pernyataan yang membutuhkan pemahaman konsep dengan jawaban berupa istilah kunci.
+                - Jika tingkat kesulitan adalah 'high', buatlah pernyataan yang menantang dengan jawaban berupa istilah teknis atau konsep kompleks.
 
-            Setiap pernyataan memiliki informasi singkat, jawaban yang berupa kata atau frasa pendek, dan feedback untuk jawaban yang benar.
-            Pernyataan yang dihasilkan tidak berupa pertanyaan.
+            Setiap pernyataan memiliki:
+                - Informasi singkat yang meminta jawaban berupa istilah
+                - Jawaban yang harus berupa istilah/kata kunci tunggal (bukan kalimat)
+                - Feedback singkat untuk jawaban yang benar
+                - Level kesulitan
+                - Bahasa soal mengikuti bahasa pdf nya
 
-            Gunakan format berikut:
+            Pernyataan yang dihasilkan tidak berupa pertanyaan tapi pernyataan yang meminta istilah.
+            Soal yang  dihasilkan menggunakan bahasa yang sama dengan teks referensi.
+
+            Format contoh (perhatikan jawaban berupa istilah singkat):
 
             [
             {
-                \"question\": \"Penemu lampu pijar.\",
-                \"answer\": \"Thomas Alva Edison.\",
+                \"question\": \"Nama ilmuwan yang menemukan lampu pijar.\",
+                \"answer\": \"Edison\",
                 \"level\": \"easy\",
-                \"feedback\": \"Thomas Alva Edison menemukan lampu pijar pada tahun 1879.\"
+                \"feedback\": \"Thomas Alva Edison adalah penemu lampu pijar.\"
             },
             {
-                \"question\": \"Ibu kota Indonesia.\",
-                \"answer\": \"Jakarta.\",
+                \"question\": \"Ibukota negara Indonesia.\",
+                \"answer\": \"Jakarta\",
                 \"level\": \"easy\",
-                \"feedback\": \"Jakarta adalah ibu kota Indonesia sejak tahun 1945.\"
+                \"feedback\": \"Jakarta merupakan ibukota Indonesia sejak 1945.\"
+            },
+            {
+                \"question\": \"Teori yang menjelaskan evolusi spesies melalui seleksi alam.\",
+                \"answer\": \"Darwinisme\",
+                \"level\": \"medium\",
+                \"feedback\": \"Darwinisme adalah teori evolusi yang dikembangkan Charles Darwin.\"
             },
             ...
             ]
@@ -102,7 +116,7 @@ class PdfQuestionController extends Controller
                 - Jika tingkat kesulitan adalah 'high', buatlah pertanyaan yang menantang dan membutuhkan analisis atau aplikasi konsep yang kompleks.
 
             Setiap soal memiliki pertanyaan, jawaban (True atau False), dan feedback mengapa jawaban tersebut benar atau salah.
-
+            Soal di generate menggunakan bahasa pdf nya, jika pdf bahasa inggris maka soal bahasa inggris. Demikian dengan pdf bahasa yang lain.
             Gunakan format berikut:
 
             [

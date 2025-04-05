@@ -128,28 +128,51 @@
                                 </form>
                             @endforeach
                         </div>
-                    @elseif ($quizType === 'Essay')
-                        <form method="POST"
-                              action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                              class="space-y-4">
-                            @csrf
-                            <textarea name="essay_answer" rows="5"
-                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                      placeholder="Tulis jawaban Anda disini..."></textarea>
-                            <button type="submit"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
-                                Submit Jawaban
-                            </button>
-                        </form>
-                    @elseif ($quizType === 'True False')
+                        @elseif ($quizType === 'Essay')
+    <form method="POST"
+        action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+        onsubmit="stopTimer()"
+        class="space-y-4">
+        @csrf
+        <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
+
+        <textarea name="essay_answer" rows="5"
+                class="w-full px-4 py-2 border
+                    @if(request('show_feedback'))
+                        @if($isEssayCorrect) border-green-500
+                        @else border-red-500
+                        @endif
+                    @else border-gray-300
+                    @endif
+                    rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Tulis jawaban Anda disini...">{{ old('essay_answer', request('selected')) }}</textarea>
+
+        @error('essay_answer')
+            <p class="text-red-500 text-sm">{{ $message }}</p>
+        @enderror
+        @error('essay_error')
+            <p class="text-red-500 text-sm">{{ $message }}</p>
+        @enderror
+
+        <button type="submit"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+            Submit Jawaban
+        </button>
+    </form>
+ 
+                        @elseif ($quizType === 'True False')
                         <div class="flex space-x-4 justify-center">
                             <form method="POST"
                                   action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
                                   onsubmit="stopTimer()">
                                 @csrf
                                 <input type="hidden" name="selected_option" value="True">
+                                <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
                                 <button type="submit"
-                                        class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg transition-colors">
+                                        class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg transition-colors
+                                        @if(request('selected') == 'True' && request('show_feedback')) selected-wrong
+                                        @elseif('True' == $currentQuestion['correct_answer'] && request('show_feedback')) correct-answer
+                                        @else hover:bg-blue-50 @endif">
                                     Benar
                                 </button>
                             </form>
@@ -158,13 +181,18 @@
                                   onsubmit="stopTimer()">
                                 @csrf
                                 <input type="hidden" name="selected_option" value="False">
+                                <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
                                 <button type="submit"
-                                        class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg transition-colors">
+                                        class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg transition-colors
+                                        @if(request('selected') == 'False' && request('show_feedback')) selected-wrong
+                                        @elseif('False' == $currentQuestion['correct_answer'] && request('show_feedback')) correct-answer
+                                        @else hover:bg-blue-50 @endif">
                                     Salah
                                 </button>
                             </form>
                         </div>
                     @endif
+
 
                     <!-- Feedback Section -->
                     @if(request('show_feedback'))
@@ -183,7 +211,7 @@
                                         <span class="font-medium">Jawaban benar:</span>
                                         <span class="bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
                                             {{ $currentQuestion['correct_answer'] }} -
-                                            {{ $currentQuestion['options'][$currentQuestion['correct_answer']] }}
+                                            {{-- {{ $currentQuestion['options'][$currentQuestion['correct_answer']] }} --}}
                                         </span>
                                     </div>
 

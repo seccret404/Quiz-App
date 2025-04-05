@@ -58,6 +58,11 @@ class QuizStudentController extends Controller
                 }
             }
         }
+        $isEssayCorrect = false;
+        if (request('show_feedback') && $quizType === 'Essay') {
+            $isEssayCorrect = $this->checkEssayAnswer(request('selected'), $currentQuestion['correct_answer'] ?? '');
+        }
+
 
         // Jika tidak ada soal yang tersedia
         if (empty($sortedQuestions)) {
@@ -101,7 +106,9 @@ class QuizStudentController extends Controller
             'currentQuestionId' => $questionId,
             'questionIds' => $questionIds,
             'quizType' => $quizType,
-            'sortedQuestions' => $sortedQuestions // Tambahkan sortedQuestions ke view
+            'sortedQuestions' => $sortedQuestions, // Tambahkan sortedQuestions ke view
+            'isEssayCorrect' => $isEssayCorrect,
+
         ]);
     }
 
@@ -134,43 +141,45 @@ class QuizStudentController extends Controller
         }
 
         // 4. Process Answer
-        $selectedAnswer = $request->input('selected_option');
         $isCorrect = false;
-        $quizType = $quizRef['type'] ?? 'Multiple Choice';
+        $quizType = $quizRef['type_quiz'] ?? 'Multiple Choice'; // Perhatikan ini menggunakan type_quiz bukan type
 
         // Multiple Choice/True False Handling
         if (in_array($quizType, ['Multiple Choice', 'True False'])) {
-            // Get the correct answer from the question reference
+            $selectedAnswer = $request->input('selected_option');
             $correctAnswer = $questionRef['correct_answer'] ?? null;
 
-            // Compare the selected answer with the correct answer from Firebase
-            $isCorrect = trim((string) $selectedAnswer) == trim((string) $correctAnswer);
+            if ($quizType === 'True False') {
+                $isCorrect = strtolower(trim((string) $selectedAnswer)) === strtolower(trim((string) $correctAnswer));
+            } else {
+                $isCorrect = trim((string) $selectedAnswer) == trim((string) $correctAnswer);
+            }
 
-            \Log::info("Question ID: {$questionId}, Selected: {$selectedAnswer}, Correct: {$correctAnswer}, IsCorrect: " . ($isCorrect ? 'true' : 'false'));
+            \Log::info("MC/TF Question - ID: {$questionId}, Selected: {$selectedAnswer}, Correct: {$correctAnswer}, IsCorrect: " . ($isCorrect ? 'true' : 'false'));
         }
         // Essay Handling
         elseif ($quizType === 'Essay') {
-            $essayAnswer = $request->input('essay_answer');
-            if (empty($essayAnswer)) {
+            $selectedAnswer = $request->input('essay_answer'); // Ini yang diubah
+            $correctAnswer = $questionRef['correct_answer'] ?? '';
+
+            if (empty($selectedAnswer)) {
                 return redirect()->back()->withErrors(['essay_answer' => 'Jawaban tidak boleh kosong']);
             }
 
-            $correctAnswer = $questionRef['correct_answer'] ?? '';
-            $isCorrect = $this->checkEssayAnswer($essayAnswer, $correctAnswer);
-            $selectedAnswer = $essayAnswer;
+            $isCorrect = $this->checkEssayAnswer($selectedAnswer, $correctAnswer);
+
+            \Log::info("ESSAY Question - ID: {$questionId}, Answer: {$selectedAnswer}, Correct: {$correctAnswer}, IsCorrect: " . ($isCorrect ? 'true' : 'false'));
         }
 
-        // 5. Save Attempt (Benar maupun salah tetap disimpan)
+        // 5. Save Attempt
         $this->saveAnswerAttempt($userId, $quizId, $questionId, $selectedAnswer, $isCorrect);
 
         // 6. Determine Next Step
-        // Ambil semua soal untuk mendapatkan urutan yang benar
         $questionsRef = $this->database->getReference("questions")
                                 ->orderByChild("code_quiz")
                                 ->equalTo($quizRef['code_quiz'])
                                 ->getValue();
 
-        // Urutkan soal berdasarkan tingkat kesulitan
         $levels = ['easy', 'medium', 'high'];
         $sortedQuestions = [];
 
@@ -193,11 +202,9 @@ class QuizStudentController extends Controller
                 ])
                 : redirect()->route('quiz.completed', ['quizId' => $quizId]);
         } else {
-            // Handle jawaban salah tetap redirect ke soal yang sama dengan feedback
             $feedbackData = [
-                'question_id' => $questionId,
                 'selected' => $selectedAnswer,
-                'correct' => $questionRef['correct_answer'],
+                'correct' => $correctAnswer,
                 'feedback' => $questionRef['feedback'] ?? 'Jawaban belum tepat'
             ];
             return $this->handleWrongAnswer($quizId, $questionId, $questionRef['code_quiz'], $feedbackData);
@@ -207,30 +214,33 @@ class QuizStudentController extends Controller
     // Helper Methods
 
     private function handleWrongAnswer($quizId, $questionId, $codeQuiz, $feedbackData)
-    {
-        return redirect()->route('quiz.question', [
-            'quizId' => $quizId,
-            'questionId' => $questionId,
-            'code_quiz' => $codeQuiz,
-            'show_feedback' => 1,
-            'selected' => $feedbackData['selected'],
-            'correct' => $feedbackData['correct'],
-            'feedback' => $feedbackData['feedback']
-        ]);
-    }
+{
+    return redirect()->route('quiz.question', [
+        'quizId' => $quizId,
+        'questionId' => $questionId,
+        'code_quiz' => $codeQuiz,
+        'selected' => $feedbackData['selected'],
+        'show_feedback' => true
+    ])->withErrors(['essay_error' => $feedbackData['feedback']]);
+}
 
     private function checkEssayAnswer($userAnswer, $correctAnswer)
-    {
-        if (empty($correctAnswer)) return null;
+{
+    if (empty($correctAnswer)) return false;
 
-        similar_text(
-            strtolower(trim($userAnswer)),
-            strtolower(trim($correctAnswer)),
-            $similarity
-        );
+    // Normalisasi string
+    $userAnswer = strtolower(trim($userAnswer));
+    $correctAnswer = strtolower(trim($correctAnswer));
 
-        return $similarity >= 70;
+    // Cek kesamaan langsung
+    if ($userAnswer === $correctAnswer) {
+        return true;
     }
+
+    // Cek kesamaan parsial (opsional)
+    similar_text($userAnswer, $correctAnswer, $similarity);
+    return $similarity >= 70; // Jika 70% mirip dianggap benar
+}
 
     private function saveAnswerAttempt($userId, $quizId, $questionId, $answer, $isCorrect)
     {
