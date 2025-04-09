@@ -1,51 +1,125 @@
 <div class="flex flex-col col-span-full sm:col-span-6 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
-    <header class="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60 flex items-center">
-        <h2 class="font-semibold text-gray-800 dark:text-gray-100">Sales VS Refunds</h2>
-        <div
-            class="relative ml-2"
-            x-data="{ open: false }"
-            @mouseenter="open = true"
-            @mouseleave="open = false"
-        >
-            <button
-                class="block"
-                href="#0"
-                aria-haspopup="true"
-                :aria-expanded="open"
-                @focus="open = true"
-                @focusout="open = false"
-                @click.prevent
-            >
-                <svg class="fill-current text-gray-400 dark:text-gray-500" width="16" height="16" viewBox="0 0 16 16">
-                    <path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 12c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm1-3H7V4h2v5Z" />
-                </svg>
-            </button>
-            <div class="z-10 absolute bottom-full left-1/2 -translate-x-1/2">
-                <div
-                    class="min-w-72 bg-white dark:bg-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-600 px-3 py-2 rounded-lg shadow-lg overflow-hidden mb-2"
-                    x-show="open"
-                    x-transition:enter="transition ease-out duration-200 transform"
-                    x-transition:enter-start="opacity-0 translate-y-2"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease-out duration-200"
-                    x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0"
-                    x-cloak
-                >
-                    <div class="text-sm">Sint occaecat cupidatat non proident, sunt in culpa qui
-                        officia deserunt mollit.
-                    </div>
-                </div>
-            </div>
-        </div>
+    <header class="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60">
+        <h2 class="font-semibold text-gray-800 dark:text-gray-100">Score Distribution</h2>
     </header>
     <div class="px-5 py-3">
-        <div class="flex items-start">
-            <div class="text-3xl font-bold text-gray-800 dark:text-gray-100 mr-2">+$6,796</div>
-            <div class="text-sm font-medium text-red-700 px-1.5 bg-red-500/20 rounded-full">-34%</div>
-        </div>
+        <ul class="flex flex-wrap gap-x-4">
+            <li class="inline-flex items-center">
+                <span class="block w-3 h-3 mr-2 rounded-full bg-blue-500"></span>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Participants</span>
+            </li>
+        </ul>
     </div>
-    <div class="grow">
+    <div class="grow relative">
+        <!-- Loading indicator -->
+        <div id="chart-loading" class="absolute inset-0 flex items-center justify-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
         <canvas id="dashboard-card-09" width="595" height="248"></canvas>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('dashboard-card-09').getContext('2d');
+    const loadingElement = document.getElementById('chart-loading');
+
+    // Initialize empty chart first
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['5-10', '15-20', '25-30', '35-40', '45-50', '55-60', '65-70', '75-80', '85-90', '95-100'],
+            datasets: [{
+                label: 'Participants',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Show loading indicator
+    loadingElement.style.display = 'flex';
+    ctx.canvas.style.opacity = '0.5';
+
+    // Fetch data from Laravel endpoint
+    fetch('{{ route("quiz.attempts.data") }}')
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'Failed to load data');
+
+            const scores = data.scores;
+            const scoreRanges = ['5-10', '15-20', '25-30', '35-40', '45-50', '55-60', '65-70', '75-80', '85-90', '95-100'];
+            const bins = Array(scoreRanges.length).fill(0);
+
+            scores.forEach(score => {
+                const numScore = parseInt(score);
+                if (numScore >= 5 && numScore <= 10) bins[0]++;
+                else if (numScore >= 15 && numScore <= 20) bins[1]++;
+                else if (numScore >= 25 && numScore <= 30) bins[2]++;
+                else if (numScore >= 35 && numScore <= 40) bins[3]++;
+                else if (numScore >= 45 && numScore <= 50) bins[4]++;
+                else if (numScore >= 55 && numScore <= 60) bins[5]++;
+                else if (numScore >= 65 && numScore <= 70) bins[6]++;
+                else if (numScore >= 75 && numScore <= 80) bins[7]++;
+                else if (numScore >= 85 && numScore <= 90) bins[8]++;
+                else if (numScore >= 95 && numScore <= 100) bins[9]++;
+            });
+
+            // Update chart data
+            chart.data.datasets[0].data = bins;
+            chart.data.datasets[0].backgroundColor = scoreRanges.map((_, i) =>
+                i === 4 ? 'rgba(255, 159, 64, 0.7)' : 'rgba(54, 162, 235, 0.7)'
+            );
+            chart.data.datasets[0].borderColor = scoreRanges.map((_, i) =>
+                i === 4 ? 'rgba(255, 159, 64, 1)' : 'rgba(54, 162, 235, 1)'
+            );
+
+            // Update chart options
+            chart.options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: Math.max(...bins) > 10 ? 5 : 1
+                        }
+                    }
+                }
+            };
+
+            chart.update();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Optionally show error message to user
+        })
+        .finally(() => {
+            loadingElement.style.display = 'none';
+            ctx.canvas.style.opacity = '1';
+        });
+});
+</script>
+@endpush

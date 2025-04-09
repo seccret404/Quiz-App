@@ -25,10 +25,14 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <a href="">
-                            <button class="bg-[#4E73DF] text-white px-4 py-2 cursor-pointer rounded mt-4 w-full flex items-center text-[12px]"><img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Questions</button>
+                        <a href="{{ route('quiz.questions-detail', ['quizId' => $quiz['id'] ?? '']) }}">
+                            <button class="bg-[#4E73DF] text-white px-4 py-2 cursor-pointer rounded mt-4 w-full flex items-center text-[12px]">
+                                <img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Questions
+                            </button>
                         </a>
-                        <button class="bg-[#4E73DF] text-white px-4 py-2 cursor-pointer rounded mt-4 w-full flex items-center text-[12px]"><img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Leaderboard</button>
+                        <a href="{{ route('quiz.leaderboards', $quiz['id']) }}">
+                            <button class="bg-[#4E73DF] text-white px-4 py-2 cursor-pointer rounded mt-4 w-full flex items-center text-[12px]"><img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Leaderboard</button>
+                        </a>
                     </div>
                 </div>
             @endforeach

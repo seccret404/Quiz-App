@@ -38,10 +38,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard/quiz-open', [GenerateQuizController::class, 'showquiz'])->name('quiz.open');
     Route::get('/dashboard/quiz-ongoing', [GenerateQuizController::class, 'showQuizOngoing'])->name('quiz.ongoing');
     Route::get('/dashboard/admin/leaderboard', [LeaderboardController::class, 'leaderboard'])->name('leaderboard');
-    Route::get('/dashboard/leadeboard/soal/{quizId}', [LeaderboardController::class, 'showQuestion'])->name('quiz.question');
+    Route::get('/quiz/questions-detail/{quizId}', [LeaderboardController::class, 'showQuestions'])->name('quiz.questions-detail');
     Route::post('/generate-questions', [PdfQuestionController::class, 'processPDF'])->name('generate.quiz');
+    Route::get('/quiz/leaderboards/{quizId}', [LeaderboardController::class, 'showLeaderboard'])->name('quiz.leaderboards');
 
-
+    Route::get('/quiz/attempts/data', [TeacherController::class, 'getQuizAttemptsData'])
+    ->name('quiz.attempts.data');
     //quiz
     Route::post('/student/quiz/{id}', [GenerateQuizController::class, 'quizStart'])->name('quiz.start');
 
@@ -63,5 +65,8 @@ Route::get('/student/quiz/{quizId}/{questionId}', [QuizStudentController::class,
     Route::post('/student/quiz/{quizId}/{questionId}/answer', [QuizStudentController::class, 'submitAnswer'])->name('quiz.answer');
     Route::get('/student/quiz/{quizId}/completed', [QuizStudentController::class, 'completed'])->name('quiz.completed');
     Route::get('/quiz/{quizId}/completed', [QuizStudentController::class, 'quizCompleted'])->name('quiz.completed');
+
+    Route::get('/quiz/questions/{quizId}', [StudentsController::class, 'showQuestions'])->name('quiz.questions');
+    Route::get('/quiz/leaderboard/{quizId}', [StudentsController::class, 'showLeaderboard'])->name('quiz.leaderboard');
 
 });

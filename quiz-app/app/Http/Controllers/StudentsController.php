@@ -80,4 +80,66 @@ class StudentsController extends Controller
 
     }
 
+    public function showQuestions($quizId)
+{
+    // Ambil data quiz
+    $quizRef = $this->database->getReference("quizs/{$quizId}")->getValue();
+
+    // Ambil semua questions untuk quiz ini
+    $questionsRef = $this->database->getReference("questions")
+        ->orderByChild("id_quiz")
+        ->equalTo($quizId)
+        ->getValue();
+
+    return view('pages.students.Quiz.questions', [
+        'quiz' => $quizRef,
+        'questions' => $questionsRef
+    ]);
+}
+public function showLeaderboard($quizId)
+{
+    // Ambil data quiz
+    $quizRef = $this->database->getReference("quizs/{$quizId}")->getValue();
+
+    // Ambil semua attempt untuk quiz ini dan urutkan berdasarkan score tertinggi
+    $attemptsRef = $this->database->getReference("attempt_quizs")
+        ->orderByChild("quiz_id")
+        ->equalTo($quizId)
+        ->getValue();
+
+    // Urutkan attempts berdasarkan score (descending) dan beri ranking
+    $leaderboard = [];
+    if ($attemptsRef) {
+        usort($attemptsRef, function($a, $b) {
+            return $b['score'] <=> $a['score'];
+        });
+
+        $currentRank = 1;
+        $prevScore = null;
+
+        foreach ($attemptsRef as $index => $attempt) {
+            $userRef = $this->database->getReference("users/{$attempt['user_id']}")->getValue();
+
+            // Jika score berbeda dengan sebelumnya, update ranking
+            if ($prevScore !== null && $attempt['score'] !== $prevScore) {
+                $currentRank = $index + 1;
+            }
+
+            $leaderboard[] = [
+                'rank' => $currentRank,
+                'user_name' => $userRef['name'] ?? 'Unknown',
+                'score' => $attempt['score'],
+                'timestamp' => $attempt['timestamp'] ?? null
+            ];
+
+            $prevScore = $attempt['score'];
+        }
+    }
+
+    return view('pages.students.Quiz.leaderboard', [
+        'quiz' => $quizRef,
+        'leaderboard' => $leaderboard
+    ]);
+}
+
 }

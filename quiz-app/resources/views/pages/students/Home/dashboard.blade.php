@@ -25,17 +25,16 @@
                         <p>Total Contribution: {{ $quiz['total_contribution'] }}</p>
 
                         <div class="grid grid-cols-2 gap-2">
-                            <a href=" " class="bg-[#3D17AE] text-white p-2 text-center cursor-pointer rounded mt-4 w-full flex items-center">
+                            <a href="{{ route('quiz.questions', $quiz['id']) }}" class="bg-[#3D17AE] text-white p-2 text-center cursor-pointer rounded mt-4 w-full flex items-center">
                                 <img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Questions
                             </a>
-                            <a href=" " class="bg-[#3D17AE] text-white p-2 text-center cursor-pointer rounded mt-4 w-full flex items-center">
+                            <a href="{{ route('quiz.leaderboard', $quiz['id']) }}" class="bg-[#3D17AE] text-white p-2 text-center cursor-pointer rounded mt-4 w-full flex items-center">
                                 <img width="15" height="15" class="mr-2" src="{{asset('images/eye.png')}}" alt=""/>Leaderboard
                             </a>
                         </div>
                     </div>
                 @endforeach
             </div>
-
         </div>
     </div>
 </x-student-layout>

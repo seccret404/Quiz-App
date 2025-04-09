@@ -25,41 +25,93 @@ class LeaderboardController extends Controller
         return view('pages.teacher.leaderboard.index', compact('quizzes'));
     }
 
+    public function showQuestions($id)
+    {
+        $quizRef = $this->database->getReference("quizs/{$id}")->getValue();
+        $questionsRef = $this->database->getReference("questions")
+            ->orderByChild("id_quiz")
+            ->equalTo($id)
+            ->getValue();
 
-    function showQuestion($quizId) {
-        // Ambil semua data quiz
-        $quizzes = $this->database->getReference("quizs")->getValue();
+        // Ambil semua jawaban untuk quiz ini
+        $answersRef = $this->database->getReference("answers")
+            ->orderByChild("id_quiz")
+            ->equalTo($id)
+            ->getValue();
 
-        $quiz = null;
-        foreach ($quizzes as $qzId => $quizData) {
-            if (isset($quizData['code_quiz']) && $quizData['code_quiz'] == $quizId) {
-                $quiz = $quizData;
-                break;
+        foreach ($questionsRef as $qId => &$question) {
+            // Konversi options
+            if (isset($question['options'])) {
+                $question['options'] = (array)$question['options'];
             }
-        }
 
-        if ($quiz === null) {
-            return abort(404, 'Quiz not found');
-        }
+            // Hitung jawaban benar/salah
+            $question['correct_count'] = 0;
+            $question['wrong_count'] = 0;
 
-        // Ambil semua data questions dari Firebase
-        $questions = $this->database->getReference("questions")->getValue();
-
-        // Filter hanya questions yang memiliki code_quiz yang sama dengan quiz yang diklik
-        $filteredQuestions = [];
-        if (!empty($questions)) {
-            foreach ($questions as $questionId => $question) {
-                if (isset($question['code_quiz']) && $question['code_quiz'] == $quizId) {
-                    $filteredQuestions[$questionId] = $question;
+            if ($answersRef) {
+                foreach ($answersRef as $answer) {
+                    if ($answer['id_question'] == $qId) {
+                        if ($answer['is_correct']) {
+                            $question['correct_count']++;
+                        } else {
+                            $question['wrong_count']++;
+                        }
+                    }
                 }
             }
         }
-        
-        $filteredQuestions = array_values($filteredQuestions);
 
-
-        return view('pages.teacher.leaderboard.detail_soal', compact('filteredQuestions', 'quiz'));
+        return view('pages.teacher.leaderboard.detail_soal', [
+            'quiz' => array_merge($quizRef, ['id' => $id]),
+            'questions' => $questionsRef ?: []
+        ]);
     }
 
+    public function showLeaderboard($quizId)
+{
+    // Ambil data quiz
+    $quizRef = $this->database->getReference("quizs/{$quizId}")->getValue();
+
+    // Ambil semua attempt untuk quiz ini dan urutkan berdasarkan score tertinggi
+    $attemptsRef = $this->database->getReference("attempt_quizs")
+        ->orderByChild("quiz_id")
+        ->equalTo($quizId)
+        ->getValue();
+
+    // Urutkan attempts berdasarkan score (descending) dan beri ranking
+    $leaderboard = [];
+    if ($attemptsRef) {
+        usort($attemptsRef, function($a, $b) {
+            return $b['score'] <=> $a['score'];
+        });
+
+        $currentRank = 1;
+        $prevScore = null;
+
+        foreach ($attemptsRef as $index => $attempt) {
+            $userRef = $this->database->getReference("users/{$attempt['user_id']}")->getValue();
+
+            // Jika score berbeda dengan sebelumnya, update ranking
+            if ($prevScore !== null && $attempt['score'] !== $prevScore) {
+                $currentRank = $index + 1;
+            }
+
+            $leaderboard[] = [
+                'rank' => $currentRank,
+                'user_name' => $userRef['name'] ?? 'Unknown',
+                'score' => $attempt['score'],
+                'timestamp' => $attempt['timestamp'] ?? null
+            ];
+
+            $prevScore = $attempt['score'];
+        }
+    }
+
+    return view('pages.teacher.leaderboard.leader_board', [
+        'quiz' => $quizRef,
+        'leaderboard' => $leaderboard
+    ]);
+}
 
 }
