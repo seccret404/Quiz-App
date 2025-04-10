@@ -106,11 +106,15 @@
                             @foreach ($currentQuestion['options'] as $optionKey => $optionValue)
                                 <form method="POST"
                                       action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                                      onsubmit="stopTimer()">
+                                      id="form-{{ $optionKey }}"
+                                      class="answer-form">
                                     @csrf
                                     <input type="hidden" name="selected_option" value="{{ $optionKey }}">
                                     <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
-                                    <button type="submit"
+                                    <input type="hidden" name="time_taken" class="time-taken-input" value="">
+
+                                    <button type="button"
+                                            onclick="submitAnswer('form-{{ $optionKey }}')"
                                             class="w-full p-4 border rounded-lg transition-all flex items-start
                                                   @if(request('selected') == $optionKey && request('show_feedback')) selected-wrong
                                                   @elseif($optionKey == $currentQuestion['correct_answer'] && request('show_feedback')) correct-answer
@@ -128,47 +132,52 @@
                                 </form>
                             @endforeach
                         </div>
-                        @elseif ($quizType === 'Essay')
-    <form method="POST"
-        action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-        onsubmit="stopTimer()"
-        class="space-y-4">
-        @csrf
-        <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
+                    @elseif ($quizType === 'Essay')
+                        <form method="POST"
+                            action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
+                            id="essay-form"
+                            class="answer-form space-y-4">
+                            @csrf
+                            <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
+                            <input type="hidden" name="time_taken" class="time-taken-input" value="">
 
-        <textarea name="essay_answer" rows="5"
-                class="w-full px-4 py-2 border
-                    @if(request('show_feedback'))
-                        @if($isEssayCorrect) border-green-500
-                        @else border-red-500
-                        @endif
-                    @else border-gray-300
-                    @endif
-                    rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Tulis jawaban Anda disini...">{{ old('essay_answer', request('selected')) }}</textarea>
+                            <textarea name="essay_answer" rows="5"
+                                    class="w-full px-4 py-2 border
+                                        @if(request('show_feedback'))
+                                            @if($isEssayCorrect) border-green-500
+                                            @else border-red-500
+                                            @endif
+                                        @else border-gray-300
+                                        @endif
+                                        rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Tulis jawaban Anda disini...">{{ old('essay_answer', request('selected')) }}</textarea>
 
-        @error('essay_answer')
-            <p class="text-red-500 text-sm">{{ $message }}</p>
-        @enderror
-        @error('essay_error')
-            <p class="text-red-500 text-sm">{{ $message }}</p>
-        @enderror
+                            @error('essay_answer')
+                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                            @enderror
+                            @error('essay_error')
+                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                            @enderror
 
-        <button type="submit"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
-            Submit Jawaban
-        </button>
-    </form>
- 
-                        @elseif ($quizType === 'True False')
+                            <button type="button"
+                                    onclick="submitAnswer('essay-form')"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                Submit Jawaban
+                            </button>
+                        </form>
+                    @elseif ($quizType === 'True False')
                         <div class="flex space-x-4 justify-center">
                             <form method="POST"
                                   action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                                  onsubmit="stopTimer()">
+                                  id="true-form"
+                                  class="answer-form">
                                 @csrf
                                 <input type="hidden" name="selected_option" value="True">
                                 <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
-                                <button type="submit"
+                                <input type="hidden" name="time_taken" class="time-taken-input" value="">
+
+                                <button type="button"
+                                        onclick="submitAnswer('true-form')"
                                         class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg transition-colors
                                         @if(request('selected') == 'True' && request('show_feedback')) selected-wrong
                                         @elseif('True' == $currentQuestion['correct_answer'] && request('show_feedback')) correct-answer
@@ -178,11 +187,15 @@
                             </form>
                             <form method="POST"
                                   action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}"
-                                  onsubmit="stopTimer()">
+                                  id="false-form"
+                                  class="answer-form">
                                 @csrf
                                 <input type="hidden" name="selected_option" value="False">
                                 <input type="hidden" name="id_questions" value="{{ $currentQuestionId }}">
-                                <button type="submit"
+                                <input type="hidden" name="time_taken" class="time-taken-input" value="">
+
+                                <button type="button"
+                                        onclick="submitAnswer('false-form')"
                                         class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg transition-colors
                                         @if(request('selected') == 'False' && request('show_feedback')) selected-wrong
                                         @elseif('False' == $currentQuestion['correct_answer'] && request('show_feedback')) correct-answer
@@ -192,7 +205,6 @@
                             </form>
                         </div>
                     @endif
-
 
                     <!-- Feedback Section -->
                     @if(request('show_feedback'))
@@ -210,8 +222,7 @@
                                     <div class="mt-2">
                                         <span class="font-medium">Jawaban benar:</span>
                                         <span class="bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
-                                            {{ $currentQuestion['correct_answer'] }} -
-                                            {{-- {{ $currentQuestion['options'][$currentQuestion['correct_answer']] }} --}}
+                                            {{ $currentQuestion['correct_answer'] }}
                                         </span>
                                     </div>
 
@@ -233,7 +244,7 @@
                                                             : null;
                                         @endphp
 
-                                        @if($nextQuestionId)
+                                        @if($nextQuestionId))
                                             <div class="mt-4">
                                                 <a href="{{ route('quiz.question', [
                                                     'quizId' => $quizId,
@@ -263,7 +274,7 @@
                     $prevQuestionId = ($currentIndex > 0) ? $questionIds[$currentIndex - 1] : null;
                 @endphp
 
-                @if ($prevQuestionId)
+                @if ($prevQuestionId))
                     <a href="{{ route('quiz.question', [
                         'quizId' => $quizId,
                         'questionId' => $prevQuestionId,
@@ -285,11 +296,24 @@
 
     <!-- Timer Script -->
     <script>
-        let countdown = parseInt(document.getElementById("countdown").textContent);
-        let initialCountdown = countdown;
-        let progressRing = document.getElementById("progress-ring");
-        let interval;
+        let countdown, initialCountdown, progressRing, interval, startTime;
         let hasFeedback = {{ request('show_feedback') ? 'true' : 'false' }};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            countdown = parseInt(document.getElementById("countdown").textContent);
+            initialCountdown = countdown;
+            progressRing = document.getElementById("progress-ring");
+            startTime = new Date().getTime();
+
+            if (!hasFeedback) {
+                startTimer();
+            }
+        });
+
+        function startTimer() {
+            interval = setInterval(updateTimer, 1000);
+            console.log("Timer started with initial time:", initialCountdown);
+        }
 
         function updateTimer() {
             if (countdown > 0) {
@@ -305,17 +329,43 @@
                     progressRing.classList.add('stroke-red-700');
                 }
             } else {
-                clearInterval(interval);
-                document.getElementById('auto-submit-form').submit();
+                handleTimeout();
             }
         }
 
-        function stopTimer() {
+        function handleTimeout() {
             clearInterval(interval);
+            const timeTaken = initialCountdown; // Waktu habis
+            document.querySelectorAll('.time-taken-input').forEach(input => {
+                input.value = timeTaken;
+            });
+            console.log("Time expired. Setting time_taken to:", timeTaken);
+
+            // Set timeout flag
+            document.getElementById('timeout-flag').value = '1';
+
+            setTimeout(() => {
+                document.getElementById('auto-submit-form').submit();
+            }, 100);
         }
 
-        if (!hasFeedback) {
-            interval = setInterval(updateTimer, 1000);
+        function submitAnswer(formId) {
+            clearInterval(interval);
+            const endTime = new Date().getTime();
+            const timeUsed = Math.round((endTime - startTime) / 1000);
+            const remainingTime = Math.max(0, initialCountdown - timeUsed);
+
+            // Set time_taken value in the specific form
+            const form = document.getElementById(formId);
+            const timeInput = form.querySelector('.time-taken-input');
+            timeInput.value = remainingTime;
+
+            console.log("Submitting form:", formId, "Time taken:", remainingTime);
+
+            // Submit after a small delay
+            setTimeout(() => {
+                form.submit();
+            }, 100);
         }
     </script>
 
@@ -323,6 +373,8 @@
     <form id="auto-submit-form" method="POST" action="{{ route('quiz.answer', ['quizId' => $quizId, 'questionId' => $currentQuestionId]) }}">
         @csrf
         <input type="hidden" name="selected_option" value="">
+        <input type="hidden" name="time_taken" class="time-taken-input" value="">
+        <input type="hidden" name="timeout" id="timeout-flag" value="0">
     </form>
 </body>
 </html>

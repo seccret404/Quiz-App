@@ -70,6 +70,74 @@
                 <canvas id="scoreDistributionChart"></canvas>
             </div>
         </div>
+       <!-- Leaderboard Table -->
+    <div class="mt-8 flex flex-col col-span-full bg-white dark:bg-gray-800 shadow-lg rounded-xl">
+        <header class="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60">
+            <h2 class="font-semibold text-gray-800 dark:text-gray-100">Top Participants</h2>
+        </header>
+        <div class="p-3">
+            <div class="overflow-x-auto">
+                <table class="table-auto w-full">
+                    <thead class="text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/60">
+                        <tr>
+                            <th class="p-2 whitespace-nowrap">
+                                <div class="font-semibold text-left">Rank</div>
+                            </th>
+                            <th class="p-2 whitespace-nowrap">
+                                <div class="font-semibold text-left">Student</div>
+                            </th>
+                            <th class="p-2 whitespace-nowrap">
+                                <div class="font-semibold text-left">Average</div>
+                            </th>
+                            <th class="p-2 whitespace-nowrap">
+                                <div class="font-semibold text-left">Quizzes Taken</div>
+                            </th>
+                            <th class="p-2 whitespace-nowrap">
+                                <div class="font-semibold text-left">Highest Score</div>
+                            </th>
+                            <th class="p-2 whitespace-nowrap">
+                                <div class="font-semibold text-left">Total Score</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-700">
+                        @forelse($topParticipants as $index => $participant)
+                        <tr>
+                            <td class="p-2 whitespace-nowrap">
+                                <div class="text-left font-medium text-gray-800 dark:text-gray-100">
+                                    #{{ $index + 1 }}
+                                </div>
+                            </td>
+                            <td class="p-2 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="font-medium text-gray-800 dark:text-gray-100">{{ $participant['name'] }}</div>
+                                </div>
+                            </td>
+                            <td class="p-2 whitespace-nowrap">
+                                <div class="text-left text-gray-800 dark:text-gray-100">{{ $participant['average_score'] }}</div>
+                            </td>
+                            <td class="p-2 whitespace-nowrap">
+                                <div class="text-left text-gray-800 dark:text-gray-100">{{ $participant['attempt_count'] }}</div>
+                            </td>
+                            <td class="p-2 whitespace-nowrap">
+                                <div class="text-left text-gray-800 dark:text-gray-100">{{ $participant['highest_score'] }}</div>
+                            </td>
+                            <td class="p-2 whitespace-nowrap">
+                                <div class="text-left font-bold text-gray-800 dark:text-gray-100">{{ $participant['total_score'] }}</div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-gray-500 dark:text-gray-400">
+                                No participants data available
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>

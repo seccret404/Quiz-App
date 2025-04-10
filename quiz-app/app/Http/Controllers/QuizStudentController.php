@@ -114,106 +114,149 @@ class QuizStudentController extends Controller
 
 
     public function submitAnswer(Request $request, $quizId, $questionId)
-    {
-        // 1. Authentication and Data Validation
-        $userId = session('user_id');
-        if (!$userId) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
+{
+    // 1. Authentication and Data Validation
+    $userId = session('user_id');
+    if (!$userId) {
+        return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+    }
 
-        // Validate that the submitted question ID matches the route parameter
-        $submittedQuestionId = $request->input('id_questions');
-        if ($submittedQuestionId !== $questionId) {
-            return redirect()->back()->with('error', 'Invalid question ID');
-        }
+    // Validate that the submitted question ID matches the route parameter
+    $submittedQuestionId = $request->input('id_questions');
+    if ($submittedQuestionId !== $questionId) {
+        return redirect()->back()->with('error', 'Invalid question ID');
+    }
 
-        // 2. Get Quiz and Question Data
-        $quizRef = $this->database->getReference("quizs/{$quizId}")->getValue();
-        $questionRef = $this->database->getReference("questions/{$questionId}")->getValue();
+    // 2. Get Quiz and Question Data
+    $quizRef = $this->database->getReference("quizs/{$quizId}")->getValue();
+    $questionRef = $this->database->getReference("questions/{$questionId}")->getValue();
 
-        // 3. Validate Resources
-        if (!$quizRef) {
-            return redirect()->route('dashboard')->with('error', 'Quiz tidak ditemukan');
-        }
+    // 3. Validate Resources
+    if (!$quizRef) {
+        return redirect()->route('dashboard')->with('error', 'Quiz tidak ditemukan');
+    }
 
-        if (!$questionRef) {
-            return redirect()->route('dashboard')->with('error', 'Soal tidak ditemukan');
-        }
+    if (!$questionRef) {
+        return redirect()->route('dashboard')->with('error', 'Soal tidak ditemukan');
+    }
 
-        // 4. Process Answer
-        $isCorrect = false;
-        $quizType = $quizRef['type_quiz'] ?? 'Multiple Choice'; // Perhatikan ini menggunakan type_quiz bukan type
+    // 4. Process Answer
+    $isCorrect = false;
+    $quizType = $quizRef['type_quiz'] ?? 'Multiple Choice';
+    $selectedAnswer = '';
 
-        // Multiple Choice/True False Handling
-        if (in_array($quizType, ['Multiple Choice', 'True False'])) {
-            $selectedAnswer = $request->input('selected_option');
-            $correctAnswer = $questionRef['correct_answer'] ?? null;
+    // Multiple Choice/True False Handling
+    if (in_array($quizType, ['Multiple Choice', 'True False'])) {
+        $selectedAnswer = $request->input('selected_option');
+        $correctAnswer = $questionRef['correct_answer'] ?? null;
 
-            if ($quizType === 'True False') {
-                $isCorrect = strtolower(trim((string) $selectedAnswer)) === strtolower(trim((string) $correctAnswer));
-            } else {
-                $isCorrect = trim((string) $selectedAnswer) == trim((string) $correctAnswer);
-            }
-
-            \Log::info("MC/TF Question - ID: {$questionId}, Selected: {$selectedAnswer}, Correct: {$correctAnswer}, IsCorrect: " . ($isCorrect ? 'true' : 'false'));
-        }
-        // Essay Handling
-        elseif ($quizType === 'Essay') {
-            $selectedAnswer = $request->input('essay_answer'); // Ini yang diubah
-            $correctAnswer = $questionRef['correct_answer'] ?? '';
-
-            if (empty($selectedAnswer)) {
-                return redirect()->back()->withErrors(['essay_answer' => 'Jawaban tidak boleh kosong']);
-            }
-
-            $isCorrect = $this->checkEssayAnswer($selectedAnswer, $correctAnswer);
-
-            \Log::info("ESSAY Question - ID: {$questionId}, Answer: {$selectedAnswer}, Correct: {$correctAnswer}, IsCorrect: " . ($isCorrect ? 'true' : 'false'));
-        }
-
-        // 5. Save Attempt
-        $this->saveAnswerAttempt($userId, $quizId, $questionId, $selectedAnswer, $isCorrect);
-
-        // 6. Determine Next Step
-        $questionsRef = $this->database->getReference("questions")
-                                ->orderByChild("code_quiz")
-                                ->equalTo($quizRef['code_quiz'])
-                                ->getValue();
-
-        $levels = ['easy', 'medium', 'high'];
-        $sortedQuestions = [];
-
-        foreach ($levels as $level) {
-            foreach ($questionsRef as $id => $question) {
-                if (($question['level_questions'] ?? 'medium') === $level) {
-                    $sortedQuestions[$id] = $question;
-                }
-            }
-        }
-
-        $nextQuestionId = $this->getNextQuestionId($questionRef['code_quiz'], $questionId, $sortedQuestions);
-
-        if ($isCorrect) {
-            return $nextQuestionId
-                ? redirect()->route('quiz.question', [
-                    'quizId' => $quizId,
-                    'questionId' => $nextQuestionId,
-                    'code_quiz' => $questionRef['code_quiz']
-                ])
-                : redirect()->route('quiz.completed', ['quizId' => $quizId]);
+        if ($quizType === 'True False') {
+            $isCorrect = strtolower(trim((string) $selectedAnswer)) === strtolower(trim((string) $correctAnswer));
         } else {
-            $feedbackData = [
-                'selected' => $selectedAnswer,
-                'correct' => $correctAnswer,
-                'feedback' => $questionRef['feedback'] ?? 'Jawaban belum tepat'
-            ];
-            return $this->handleWrongAnswer($quizId, $questionId, $questionRef['code_quiz'], $feedbackData);
+            $isCorrect = trim((string) $selectedAnswer) == trim((string) $correctAnswer);
+        }
+
+        \Log::info("MC/TF Question - ID: {$questionId}, Selected: {$selectedAnswer}, Correct: {$correctAnswer}, IsCorrect: " . ($isCorrect ? 'true' : 'false'));
+    }
+    // Essay Handling
+    elseif ($quizType === 'Essay') {
+        $selectedAnswer = $request->input('essay_answer');
+        $correctAnswer = $questionRef['correct_answer'] ?? '';
+
+        if (empty($selectedAnswer)) {
+            return redirect()->back()->withErrors(['essay_answer' => 'Jawaban tidak boleh kosong']);
+        }
+
+        $isCorrect = $this->checkEssayAnswer($selectedAnswer, $correctAnswer);
+
+        \Log::info("ESSAY Question - ID: {$questionId}, Answer: {$selectedAnswer}, Correct: {$correctAnswer}, IsCorrect: " . ($isCorrect ? 'true' : 'false'));
+    }
+
+    // 5. Save Attempt (dengan time_taken)
+    $timeTaken = $request->input('time_taken', 0);
+
+
+    // dd($timeTaken);
+    $this->saveAnswerAttempt($userId, $quizId, $questionId, $selectedAnswer, $isCorrect, $quizType, $timeTaken);
+
+    if ($isCorrect) {
+        $this->updateUserScore($userId, $quizId, $questionId, $timeTaken);
+    }
+
+    // 6. Determine Next Step
+    $questionsRef = $this->database->getReference("questions")
+                            ->orderByChild("code_quiz")
+                            ->equalTo($quizRef['code_quiz'])
+                            ->getValue();
+
+    $levels = ['easy', 'medium', 'high'];
+    $sortedQuestions = [];
+
+    foreach ($levels as $level) {
+        foreach ($questionsRef as $id => $question) {
+            if (($question['level_questions'] ?? 'medium') === $level) {
+                $sortedQuestions[$id] = $question;
+            }
         }
     }
 
-    // Helper Methods
+    // Check if this is the last question
+    $isLastQuestion = $this->isLastQuestion($questionId, $sortedQuestions);
 
-    private function handleWrongAnswer($quizId, $questionId, $codeQuiz, $feedbackData)
+    if ($isLastQuestion) {
+        // Update attempt_quizs status to Done before redirecting
+        $this->markQuizAsDone($userId, $quizId);
+        return redirect()->route('quiz.completed', ['quizId' => $quizId]);
+    }
+
+    $nextQuestionId = $this->getNextQuestionId($questionRef['code_quiz'], $questionId, $sortedQuestions);
+
+    if ($isCorrect) {
+        return $nextQuestionId
+            ? redirect()->route('quiz.question', [
+                'quizId' => $quizId,
+                'questionId' => $nextQuestionId,
+                'code_quiz' => $questionRef['code_quiz']
+            ])
+            : redirect()->route('quiz.completed', ['quizId' => $quizId]);
+    } else {
+        $feedbackData = [
+            'selected' => $selectedAnswer,
+            'correct' => $correctAnswer,
+            'feedback' => $questionRef['feedback'] ?? 'Jawaban belum tepat'
+        ];
+        return $this->handleWrongAnswer($quizId, $questionId, $questionRef['code_quiz'], $feedbackData);
+    }
+}
+
+private function isLastQuestion($currentQuestionId, $sortedQuestions)
+{
+    $questionIds = array_keys($sortedQuestions);
+    $lastIndex = count($questionIds) - 1;
+    return $currentQuestionId === $questionIds[$lastIndex];
+}
+
+private function markQuizAsDone($userId, $quizId)
+{
+    // Find the attempt_quizs record for this user and quiz
+    $attemptsRef = $this->database->getReference('attempt_quizs')
+        ->orderByChild('user_id')
+        ->equalTo($userId)
+        ->getValue();
+
+    foreach ($attemptsRef as $key => $attempt) {
+        if ($attempt['quiz_id'] == $quizId && ($attempt['status'] ?? '') !== 'completed') {
+            // Update the status to Done
+            $this->database->getReference("attempt_quizs/{$key}")
+                ->update([
+                    'status' => 'completed',
+                    'completed_at' => now()->toDateTimeString()
+                ]);
+            break;
+        }
+    }
+}
+private function handleWrongAnswer($quizId, $questionId, $codeQuiz, $feedbackData)
 {
     return redirect()->route('quiz.question', [
         'quizId' => $quizId,
@@ -223,61 +266,81 @@ class QuizStudentController extends Controller
         'show_feedback' => true
     ])->withErrors(['essay_error' => $feedbackData['feedback']]);
 }
-
-    private function checkEssayAnswer($userAnswer, $correctAnswer)
+private function saveAnswerAttempt($userId, $quizId, $questionId, $answer, $isCorrect, $quizType = null, $timeTaken = 0)
 {
-    if (empty($correctAnswer)) return false;
+    $answerData = [
+        'id_user' => $userId,
+        'id_quiz' => $quizId,
+        'id_question' => $questionId,
+        'is_correct' => $isCorrect,
+        'answered_at' => now()->toDateTimeString(),
+        'time_taken' => $timeTaken  // Add time_taken to the answer data
+    ];
 
-    // Normalisasi string
-    $userAnswer = strtolower(trim($userAnswer));
-    $correctAnswer = strtolower(trim($correctAnswer));
-
-    // Cek kesamaan langsung
-    if ($userAnswer === $correctAnswer) {
-        return true;
+    // Store answer based on quiz type
+    if ($quizType === 'Essay') {
+        $answerData['essay_answer'] = $answer;
+    } else {
+        $answerData['selected_option'] = $answer;
     }
 
-    // Cek kesamaan parsial (opsional)
-    similar_text($userAnswer, $correctAnswer, $similarity);
-    return $similarity >= 70; // Jika 70% mirip dianggap benar
+    $this->database->getReference('answers')->push($answerData);
+
+    if ($isCorrect) {
+        $this->updateUserScore($userId, $quizId, $questionId, $timeTaken);
+    }
 }
 
-    private function saveAnswerAttempt($userId, $quizId, $questionId, $answer, $isCorrect)
-    {
-        $this->database->getReference('answers')->push([
-            'id_user' => $userId,
-            'id_quiz' => $quizId,
-            'id_question' => $questionId,
-            'selected_option' => $answer,
-            'is_correct' => $isCorrect,
-            'answered_at' => now()->toDateTimeString()
-        ]);
+private function updateUserScore($userId, $quizId, $questionId, $timeTaken)
+{
+    // Dapatkan data pertanyaan
+    $questionRef = $this->database->getReference("questions/{$questionId}")->getValue();
+    $timer = $questionRef['timer'] ?? 60; // Default 60 detik jika tidak ada
+    $baseScore = $questionRef['score_question'] ?? 0;
 
-        if ($isCorrect) {
-            $this->updateUserScore($userId, $quizId, $questionId);
+    // Hitung skor berdasarkan waktu
+    $timeTake = $timer - $timeTaken  ;
+    // dd($timeTake);
+    $timeRatio = $timeTake / $timer;
+    $scoreMultiplier = max(0.2, 1 - ($timeRatio * 0.8)); // Minimal 20% skor
+    $calculatedScore = $scoreMultiplier * $baseScore;
+
+    // Bulatkan skor ke 1 desimal
+    $finalScore = round($calculatedScore, 1);
+
+    // Update skor di attempt_quizs
+    $attemptsRef = $this->database->getReference("attempt_quizs")
+        ->orderByChild('user_id')
+        ->equalTo($userId)
+        ->getValue();
+
+    foreach ($attemptsRef as $key => $attempt) {
+        if ($attempt['quiz_id'] === $quizId) {
+            $currentScore = $attempt['score'] ?? 0;
+            $this->database->getReference("attempt_quizs/{$key}")->update([
+                'score' => $currentScore + $finalScore,
+                'details' => [
+                    $questionId => [
+                        'base_score' => $baseScore,
+                        'time_taken' => $timeTake,
+                        'calculated_score' => $finalScore
+                    ]
+                ]
+            ]);
+            break;
         }
     }
 
-    private function updateUserScore($userId, $quizId, $questionId)
-    {
-        $questionRef = $this->database->getReference("questions/{$questionId}")->getValue();
-        $scoreToAdd = $questionRef['score_question'] ?? 0;
-
-        $attemptsRef = $this->database->getReference("attempt_quizs")
-            ->orderByChild('user_id')
-            ->equalTo($userId)
-            ->getValue();
-
-        foreach ($attemptsRef as $key => $attempt) {
-            if ($attempt['quiz_id'] === $quizId) {
-                $currentScore = $attempt['score'] ?? 0;
-                $this->database->getReference("attempt_quizs/{$key}")->update([
-                    'score' => $currentScore + $scoreToAdd
-                ]);
-                break;
-            }
-        }
-    }
+    \Log::info("Score calculation", [
+        'user_id' => $userId,
+        'question_id' => $questionId,
+        'time_taken' => $timeTake,
+        'timer' => $timer,
+        'base_score' => $baseScore,
+        'final_score' => $finalScore,
+        'calculation' => "((1-($timeTake/$timer)*0.8)*$baseScore)"
+    ]);
+}
     private function getNextQuestionId($codeQuiz, $currentQuestionId, $sortedQuestions)
     {
         $questionIds = array_keys($sortedQuestions);
