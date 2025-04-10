@@ -23,7 +23,7 @@ use App\Http\Controllers\GenerateQuizController;
 Route::get('/connect', [FirebaseController::class, 'index']);
 
 
-Route::get('/login', [AuthController::class, 'LoginForm'])->name('login');
+Route::get('/', [AuthController::class, 'LoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'Login']);
 Route::get('/register', [AuthController::class, 'RegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'Register']);
