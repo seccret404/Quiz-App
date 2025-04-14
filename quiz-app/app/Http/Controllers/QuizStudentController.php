@@ -228,7 +228,18 @@ class QuizStudentController extends Controller
         return $this->handleWrongAnswer($quizId, $questionId, $questionRef['code_quiz'], $feedbackData);
     }
 }
+private function checkEssayAnswer($userAnswer, $correctAnswer)
+{
+    if (empty($correctAnswer)) return null;
 
+    similar_text(
+        strtolower(trim($userAnswer)),
+        strtolower(trim($correctAnswer)),
+        $similarity
+    );
+
+    return $similarity >= 70;
+}
 private function isLastQuestion($currentQuestionId, $sortedQuestions)
 {
     $questionIds = array_keys($sortedQuestions);
