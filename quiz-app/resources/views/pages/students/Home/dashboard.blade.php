@@ -8,9 +8,12 @@
                         <button class="ml-1 bg-[#3D17AE] text-white w-1/4 h-[50px] rounded-[10px] shadow">Join</button>
                     </div>
                 </div>
+                 @php
+                    $user = session('user');
+                @endphp
                 <div class="bg-gradient-to-br from-white to-purple-700 border shadow p-[30px] rounded-[10px]">
                     <div class="grid grid-cols2 gap-2">
-                        <div class="text-[18px] font-bold">Helo, Mahes</div>
+                        <div class="text-[18px] font-bold">Helo, {{ $user['name'] ?? 'Dashboard' }}</div>
                         <div class="">
                             <img src="" alt="">
                         </div>

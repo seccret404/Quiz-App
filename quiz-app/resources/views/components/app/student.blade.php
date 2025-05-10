@@ -26,11 +26,15 @@
             <div class="flex items-center space-x-3">
                 <form action="{{route('logout')}}" method="post">
                     @csrf
-                    <button type="submit">logout</button>
+                    <button type="submit" class="cursor-pointer rounded p-1 bg-[#EE0404] text-[#FFFFFF]" >Sign Out</button>
                 </form>
                 <hr class="w-px h-6 bg-gray-200 dark:bg-gray-700/60 border-none" />
-
-                <button class="bg-[#26107459] text-white p-4 rounded cursor-pointer" onclick="window.location.href='{{ route('my.dashboard') }}'">Mahes's Dashboard</button>
+                @php
+                    $user = session('user');
+                @endphp
+                <button class="bg-[#26107459] text-white p-4 rounded cursor-pointer" onclick="window.location.href='{{ route('my.dashboard') }}'">
+                      {{ $user['name'] ?? 'Dashboard' }}'s Dashboard
+                </button>
             </div>
 
         </div>
